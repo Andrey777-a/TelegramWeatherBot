@@ -1,0 +1,32 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: TelegramWeatherBot
+
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:5432/${POSTGRES_DATABASE}?currentSchema=${POSTGRES_SCHEMA}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    change-log: db/db.changelog-master.yaml
+    default-schema: weather
+    enabled: true
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        hbm2ddl.auto: validate
+    open-in-view: false
+#logging:
+#  level:
+#    root: debug
+#    org.springframework.web: debug
+#      org.hibernate: ${LOG_LVL_HIBERNATE}
+#    file:
+#      name: log/app_log.log
+#      path: /
+#    threshold:
+#      file: warn
