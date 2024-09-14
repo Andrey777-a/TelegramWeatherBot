@@ -2,8 +2,10 @@ package ua.com.telegramweatherbot.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ua.com.telegramweatherbot.Model.WeatherResponse;
-import ua.com.telegramweatherbot.service.WeatherService;
+import ua.com.telegramweatherbot.Model.dto.CityResponse;
+import ua.com.telegramweatherbot.Model.dto.WeatherResponse;
+import ua.com.telegramweatherbot.service.impl.CityServiceImpl;
+import ua.com.telegramweatherbot.service.impl.WeatherServiceImpl;
 
 import java.util.List;
 
@@ -12,26 +14,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WeatherRestController {
 
-    private final WeatherService weatherService;
+    private final WeatherServiceImpl weatherService;
+    private final CityServiceImpl cityService;
 
     @GetMapping("/{lat}&{lon}")
-    public List<WeatherResponse> getCity(@PathVariable double lat, @PathVariable double lon) {
+    public List<WeatherResponse> getCityLocation(@PathVariable double lat, @PathVariable double lon) {
 
-        return weatherService.getTemperature(lat, lon);
+        return weatherService.getWeatherByCoordinates(lat, lon);
 
     }
 
-    /*@GetMapping("/test")
-    public List<WeatherResponse> getCityTest(@RequestParam String city) {
+    @GetMapping()
+    public List<WeatherResponse> getCity(@RequestParam String city) {
 
-        return weatherService.getWeather(city);
+        return weatherService.getWeatherByCity(city);
 
-    }*/
+    }
 
-    @GetMapping("/test")
-    public List<WeatherResponse> getCityTest(@RequestParam String city) {
+    @GetMapping("/city")
+    public List<CityResponse> getCityList(@RequestParam String city) {
 
-        return weatherService.getWeather(city);
+        return cityService.getCity(city);
+
+    }
+
+    @GetMapping("/list")
+    public List<CityResponse> getCityListTest(@RequestParam List<String> city) {
+
+        return cityService.getCityLocalisation(city);
 
     }
 

@@ -3,7 +3,16 @@ spring:
     import: optional:file:.env[.properties]
   application:
     name: TelegramWeatherBot
-
+  cache:
+    type: redis
+    cache-names: redis-cache
+    redis:
+      time-to-live: 10m
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST}:5432/${POSTGRES_DATABASE}?currentSchema=${POSTGRES_SCHEMA}
     username: ${POSTGRES_USERNAME}

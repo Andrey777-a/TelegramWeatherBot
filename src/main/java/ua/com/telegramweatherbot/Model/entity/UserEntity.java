@@ -1,27 +1,25 @@
-package ua.com.telegramweatherbot.Model;
+package ua.com.telegramweatherbot.Model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "chat_id")
-    private String chatId;
+    private long chatId;
 
     private String firstname;
 
@@ -33,13 +31,15 @@ public class User {
 
     private String language;
 
+    private String units;
+
     @Column(name = "registered_at")
-    private Timestamp registeredAt;
+    private LocalDateTime registeredAt;
 
     @Column(name = "last_weather_request")
-    private Timestamp lastWeatherRequest;
+    private LocalDateTime lastWeatherRequest;
 
-
-
+    @Column(name = "notification_time")
+    private LocalDateTime notificationTime;
 
 }

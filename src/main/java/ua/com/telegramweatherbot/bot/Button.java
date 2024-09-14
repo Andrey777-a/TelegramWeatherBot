@@ -1,62 +1,23 @@
 package ua.com.telegramweatherbot.bot;
 
+import lombok.RequiredArgsConstructor;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import ua.com.telegramweatherbot.Model.dto.CityDto;
+import ua.com.telegramweatherbot.service.CityService;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RequiredArgsConstructor
 public class Button {
 
-    private static final InlineKeyboardButton START_BUTTON = new InlineKeyboardButton("Start");
-    private static final InlineKeyboardButton CITY_BUTTON = new InlineKeyboardButton("City");
-    private static final InlineKeyboardButton LOCATION_BUTTON = new InlineKeyboardButton("Send location");
-    private static final InlineKeyboardButton HELP_BUTTON = new InlineKeyboardButton("Help");
+    private final CityService cityService;
 
-    private static final InlineKeyboardButton KIEV_BUTTON = new InlineKeyboardButton("Kiev");
-    private static final InlineKeyboardButton DNIPRO_BUTTON = new InlineKeyboardButton("Dnipro");
-
-//    private static final InlineKeyboardButton DNIPRO_BUTTON = new InlineKeyboardButton("Dnipro");
-
-    public static InlineKeyboardMarkup inlineMarkup() {
-        START_BUTTON.setCallbackData("/start");
-        CITY_BUTTON.setCallbackData("/city");
-        LOCATION_BUTTON.setCallbackData("/location");
-        HELP_BUTTON.setCallbackData("/help");
-
-        List<InlineKeyboardButton> rowInline =
-                List.of(START_BUTTON, CITY_BUTTON, LOCATION_BUTTON, HELP_BUTTON);
-
-        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInline);
-
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        markupInline.setKeyboard(rowsInLine);
-
-        return markupInline;
-
-    }
-
-    public static InlineKeyboardMarkup inlineMarkupCity() {
-        KIEV_BUTTON.setCallbackData("Kiev");
-        DNIPRO_BUTTON.setCallbackData("Dnipro");
-
-        List<InlineKeyboardButton> rowInline =
-                List.of(KIEV_BUTTON, DNIPRO_BUTTON);
-
-        List<List<InlineKeyboardButton>> rowsInLine = List.of(rowInline);
-
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        markupInline.setKeyboard(rowsInLine);
-
-        return markupInline;
-
-    }
-
-
-    public static InlineKeyboardMarkup inlineMarkupLanguage() {
+    public static InlineKeyboardMarkup inlineMarkupLocalisation() {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
@@ -85,29 +46,102 @@ public class Button {
         return markup;
     }
 
-    public static ReplyKeyboardMarkup inlineMarkupLocation() {
+    public static InlineKeyboardMarkup inlineMarkupSettings() {
 
-        ReplyKeyboardMarkup keyboardMarkup = new ReplyKeyboardMarkup();
-        keyboardMarkup.setResizeKeyboard(true);
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
-        // Создаем строку с кнопкой
-        List<KeyboardRow> keyboard = new ArrayList<>();
-        KeyboardRow row = new KeyboardRow();
+        List<InlineKeyboardButton> row = new ArrayList<>();
 
-        // Кнопка для отправки геопозиции
-        KeyboardButton locationButton = new KeyboardButton();
-        locationButton.setText("Отправить геопозицию");
-        locationButton.setRequestLocation(true);
+        InlineKeyboardButton lang = new InlineKeyboardButton();
+        lang.setText("Мова");
+        lang.setCallbackData("lang");
 
-        // Добавляем кнопку в строку
-        row.add(locationButton);
-        keyboard.add(row);
+        row.add(lang);
 
-        // Добавляем клавиатуру в сообщение
-        keyboardMarkup.setKeyboard(keyboard);
+        markup.setKeyboard(buttons);
 
-        return keyboardMarkup;
+        buttons.add(row);
+
+        return markup;
+    }
+
+    public InlineKeyboardMarkup inlineMarkupAllCity(int page, int pageSize) {
+
+        int totalCities = cityService.countCities();
+
+        List<CityDto> cities = cityService.findCitiesWithPagination(page, pageSize);
+
+        List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
+
+        for (CityDto cityDto : cities) {
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(cityDto.getName());
+            button.setCallbackData("city_" + cityDto.getName());
+
+            List<InlineKeyboardButton> rowInline = new ArrayList<>();
+            rowInline.add(button);
+
+            rowsInline.add(rowInline);
+
+        }
+
+        List<InlineKeyboardButton> navigationRow = getInlineKeyboardButtons(page, pageSize, totalCities);
+        rowsInline.add(navigationRow);
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
+        markupInline.setKeyboard(rowsInline);
+
+        return markupInline;
 
     }
 
+    private List<InlineKeyboardButton> getInlineKeyboardButtons(int page, int pageSize, int totalCities) {
+
+        int totalPages = (int) Math.ceil((double) totalCities / pageSize);
+
+        List<InlineKeyboardButton> navigationRow = new ArrayList<>();
+
+        if (page > 1) {
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText("⬅");
+            inlineKeyboardButton.setCallbackData("page_" + (page - 1));
+            navigationRow.add(inlineKeyboardButton);
+        }
+        if (page < totalPages) {
+
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText("➡");
+            inlineKeyboardButton.setCallbackData("page_" + (page + 1));
+            navigationRow.add(inlineKeyboardButton);
+        }
+        return navigationRow;
+    }
+
+
+    public static ReplyKeyboardMarkup replyKeyboardMarkup() {
+
+        KeyboardRow row = new KeyboardRow();
+
+        KeyboardButton locationButton = new KeyboardButton("Відправити геопозицію");
+        locationButton.setRequestLocation(true);
+
+        KeyboardButton cityButton = new KeyboardButton("Вибрати місто");
+
+        KeyboardButton settingsButton = new KeyboardButton("Налаштування");
+
+        row.add(locationButton);
+        row.add(cityButton);
+        row.add(settingsButton);
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+        keyboardRows.add(row);
+
+        return ReplyKeyboardMarkup.builder()
+                .keyboard(keyboardRows)
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(false)
+                .build();
+
+    }
 }

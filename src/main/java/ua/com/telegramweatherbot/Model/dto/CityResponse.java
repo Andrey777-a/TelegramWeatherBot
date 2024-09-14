@@ -1,0 +1,22 @@
+package ua.com.telegramweatherbot.Model.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
+
+import java.io.Serializable;
+import java.util.Map;
+
+@Builder
+@Value
+@ToString
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class CityResponse implements Serializable {
+
+    @JsonProperty("name")
+    String name;
+
+    @JsonProperty("local_names")
+    Map<String, String> localNameList;
+
+}
