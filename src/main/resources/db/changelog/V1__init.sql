@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users
     units VARCHAR(10),
     registered_at TIMESTAMP,
     last_weather_request TIMESTAMP,
-    notification_time TIMESTAMP
+    notification_time TIME
     );
 
 --changeset andrew:2

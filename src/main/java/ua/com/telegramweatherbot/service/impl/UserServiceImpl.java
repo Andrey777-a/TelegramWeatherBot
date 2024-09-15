@@ -8,14 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import ua.com.telegramweatherbot.Model.dto.UserDto;
-import ua.com.telegramweatherbot.Model.entity.UserEntity;
+import ua.com.telegramweatherbot.model.dto.UserDto;
+import ua.com.telegramweatherbot.model.entity.UserEntity;
 import ua.com.telegramweatherbot.exception.UserNotFoundException;
 import ua.com.telegramweatherbot.mapper.UserMapper;
 import ua.com.telegramweatherbot.repository.UserRepository;
 import ua.com.telegramweatherbot.service.UserService;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -26,6 +28,11 @@ public class UserServiceImpl implements UserService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+
+    @Override
+    public List<UserEntity> findAll() {
+        return userRepository.findAll();
+    }
 
     //        @CacheEvict(value = "UserService::findByChatId", key = "#user.chatId")
     @Transactional
@@ -67,15 +74,49 @@ public class UserServiceImpl implements UserService {
     @CacheEvict(value = "UserService::findByChatId", key = "#chatId")
     @Transactional
     @Override
-    public void changeLanguage(Long chatId, String language) {
+    public void changeLanguage(long chatId, String language) {
 
         userRepository.findByChatId(chatId).ifPresentOrElse(
                 e -> {
+
                     e.setLanguage(language);
                     userRepository.saveAndFlush(e);
+
                 }, () -> {
                     throw new UserNotFoundException("User not found");
                 }
         );
+    }
+
+    @CacheEvict(value = "UserService::findByChatId", key = "#chatId")
+    @Transactional
+    @Override
+    public void changeTimeNotification(long chatId, LocalTime time) {
+
+        userRepository.findByChatId(chatId)
+                .ifPresentOrElse(e -> {
+
+                    e.setNotificationTime(time);
+                    userRepository.saveAndFlush(e);
+
+                }, () -> {
+                    throw new UserNotFoundException("User not found");
+                });
+    }
+
+    @CacheEvict(value = "UserService::findByChatId", key = "#chatId")
+    @Transactional
+    @Override
+    public void changeCity(Long chatId, String city) {
+
+        userRepository.findByChatId(chatId)
+                .ifPresentOrElse(e -> {
+
+                    e.setCity(city);
+                    userRepository.saveAndFlush(e);
+
+                }, () -> {
+                    throw new UserNotFoundException("User not found");
+                });
     }
 }

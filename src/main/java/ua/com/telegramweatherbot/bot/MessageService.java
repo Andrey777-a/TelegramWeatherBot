@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ua.com.telegramweatherbot.Model.dto.WeatherResponse;
+import ua.com.telegramweatherbot.model.dto.WeatherResponse;
 
 @Slf4j
 @Service

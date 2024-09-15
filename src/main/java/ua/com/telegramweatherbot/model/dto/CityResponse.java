@@ -1,4 +1,4 @@
-package ua.com.telegramweatherbot.Model.dto;
+package ua.com.telegramweatherbot.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

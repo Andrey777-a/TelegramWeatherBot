@@ -1,10 +1,11 @@
-package ua.com.telegramweatherbot.Model.dto;
+package ua.com.telegramweatherbot.model.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Value
 public class UserDto implements Serializable {
@@ -29,7 +30,7 @@ public class UserDto implements Serializable {
 
     LocalDateTime lastWeatherRequest;
 
-    LocalDateTime notificationTime;
+    LocalTime notificationTime;
 
 
 

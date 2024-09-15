@@ -2,8 +2,8 @@ package ua.com.telegramweatherbot.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
-import ua.com.telegramweatherbot.Model.dto.UserDto;
-import ua.com.telegramweatherbot.Model.entity.UserEntity;
+import ua.com.telegramweatherbot.model.dto.UserDto;
+import ua.com.telegramweatherbot.model.entity.UserEntity;
 
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)

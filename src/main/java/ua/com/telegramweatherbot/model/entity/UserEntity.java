@@ -1,9 +1,10 @@
-package ua.com.telegramweatherbot.Model.entity;
+package ua.com.telegramweatherbot.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -40,6 +41,6 @@ public class UserEntity {
     private LocalDateTime lastWeatherRequest;
 
     @Column(name = "notification_time")
-    private LocalDateTime notificationTime;
+    private LocalTime notificationTime;
 
 }

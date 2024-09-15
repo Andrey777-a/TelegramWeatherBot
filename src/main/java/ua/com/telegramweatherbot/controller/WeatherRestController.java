@@ -2,8 +2,8 @@ package ua.com.telegramweatherbot.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ua.com.telegramweatherbot.Model.dto.CityResponse;
-import ua.com.telegramweatherbot.Model.dto.WeatherResponse;
+import ua.com.telegramweatherbot.model.dto.CityResponse;
+import ua.com.telegramweatherbot.model.dto.WeatherResponse;
 import ua.com.telegramweatherbot.service.impl.CityServiceImpl;
 import ua.com.telegramweatherbot.service.impl.WeatherServiceImpl;
 
@@ -32,14 +32,7 @@ public class WeatherRestController {
     }
 
     @GetMapping("/city")
-    public List<CityResponse> getCityList(@RequestParam String city) {
-
-        return cityService.getCity(city);
-
-    }
-
-    @GetMapping("/list")
-    public List<CityResponse> getCityListTest(@RequestParam List<String> city) {
+    public List<CityResponse> getCityList(@RequestParam List<String> city) {
 
         return cityService.getCityLocalisation(city);
 

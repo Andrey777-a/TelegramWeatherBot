@@ -1,4 +1,4 @@
-package ua.com.telegramweatherbot.Model.dto;
+package ua.com.telegramweatherbot.model.dto;
 
 import lombok.Value;
 

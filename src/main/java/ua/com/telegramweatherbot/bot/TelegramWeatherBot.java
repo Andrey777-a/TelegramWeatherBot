@@ -9,9 +9,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
-import ua.com.telegramweatherbot.Model.dto.CityResponse;
-import ua.com.telegramweatherbot.Model.dto.UserDto;
-import ua.com.telegramweatherbot.Model.dto.WeatherResponse;
+import ua.com.telegramweatherbot.model.dto.CityResponse;
+import ua.com.telegramweatherbot.model.dto.UserDto;
+import ua.com.telegramweatherbot.model.dto.WeatherResponse;
 import ua.com.telegramweatherbot.service.impl.CityServiceImpl;
 import ua.com.telegramweatherbot.service.impl.UserServiceImpl;
 import ua.com.telegramweatherbot.service.impl.WeatherServiceImpl;
@@ -88,7 +88,7 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
         switch (receivedMessage) {
             case "/start" -> startBot(update);
-            case "Вибрати місто" -> sendCityButtons(chatId, 1, 5);
+            case "Вибрати місто" -> sendCityButtons(chatId, 1, 5, false);
             case "Налаштування" -> settingsService.showSettings(chatId);
             case "/help" -> messageService.sendHelpMessage(chatId);
             default -> messageService.sendUnknownCommandMessage(chatId);
@@ -99,6 +99,8 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
     private void handleCallbackQuery(Update update) {
 
         String callbackData = update.getCallbackQuery().getData();
+
+        long chatId = update.getCallbackQuery().getMessage().getChatId();
 
         Optional<UserDto> byTelegramId = userService
                 .findByChatId(update.getCallbackQuery().getMessage().getChatId());
@@ -115,17 +117,46 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
             int page = Integer.parseInt(callbackData.split("_")[1]);
 
-            sendCityButtons(update.getCallbackQuery().getMessage().getChatId(), page, 5);
+            sendCityButtons(chatId, page, 5, false);
 
         } else if (callbackData.equals("lang")) {
 
-            settingsService.showLanguageOptions(update.getCallbackQuery().getMessage().getChatId());
+            settingsService.showLanguageOptions(chatId);
 
-        } else if (callbackData.matches("ru|uk|en")) {
+        } else if (callbackData.startsWith("language_")) {
 
-            settingsService.changeLanguageLocalisation(update.getCallbackQuery().getMessage().getChatId(), callbackData);
+            settingsService.changeLanguageLocalisation(chatId, callbackData.split("_")[1]);
+
+        } else if (callbackData.equals("time_notification")) {
+
+            Optional<UserDto> byChatId = userService.findByChatId(chatId);
+
+            if (Optional.ofNullable(byChatId.get().getCity()).isEmpty()) {
+
+                settingsService.showOptionsChangeCity(chatId, true);
+
+                settingsService.showTimeOptions(chatId);
+
+            } else {
+
+                settingsService.showTimeOptions(chatId);
+
+            }
+
+        } else if (callbackData.matches("^([0][9]|[1][0-7]):[0-5][0-9]$")) {
+
+            settingsService.changeTimeNotification(chatId, callbackData);
+
+        } else if (callbackData.equals("default_city")) {
+
+            settingsService.showOptionsChangeCity(chatId, true);
+
+        } else if (callbackData.startsWith("change_")) {
+
+            settingsService.changeDefaultCity(chatId, callbackData.split("_")[1]);
 
         }
+
     }
 
     private void startBot(Update update) {
@@ -136,11 +167,11 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
                 .orElse(update.getMessage().getChat().getUserName());
 
         String format = String.format(""" 
-                        Привіт, %s!
-                        Приємо познайомитись, Я телеграм бот Барбос 🐶.
-                        Ви можете дізнатися прогноз погоди для свого міста.
-                        Скористайтесь кнопками для вибору налаштувань.
-                        """, name);
+                Привіт, %s!
+                Приємо познайомитись, Я телеграм бот Барбос 🐶.
+                Ви можете дізнатися прогноз погоди для свого міста.
+                Скористайтесь кнопками для вибору налаштувань.
+                """, name);
 
         messageService.sendMessage(chatId, format);
         messageService.sendHelpMessage(chatId);
@@ -180,10 +211,10 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
     }
 
-    private void sendCityButtons(long chatId, int page, int pageSize) {
+    private void sendCityButtons(long chatId, int page, int pageSize, boolean isForNotification) {
 
         messageService.sendMessage(chatId, "Оберіть місто:",
-                new Button(cityService).inlineMarkupAllCity(page, pageSize));
+                new Button(cityService).inlineMarkupAllCity(page, pageSize, isForNotification));
 
     }
 }

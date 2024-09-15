@@ -1,6 +1,6 @@
 package ua.com.telegramweatherbot.service;
 
-import ua.com.telegramweatherbot.Model.dto.WeatherResponse;
+import ua.com.telegramweatherbot.model.dto.WeatherResponse;
 
 import java.util.List;
 

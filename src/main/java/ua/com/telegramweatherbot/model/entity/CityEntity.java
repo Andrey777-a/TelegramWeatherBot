@@ -1,4 +1,4 @@
-package ua.com.telegramweatherbot.Model.entity;
+package ua.com.telegramweatherbot.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

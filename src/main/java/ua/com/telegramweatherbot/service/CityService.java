@@ -1,15 +1,12 @@
 package ua.com.telegramweatherbot.service;
 
-import ua.com.telegramweatherbot.Model.dto.CityDto;
-import ua.com.telegramweatherbot.Model.dto.CityResponse;
+import ua.com.telegramweatherbot.model.dto.CityDto;
+import ua.com.telegramweatherbot.model.dto.CityResponse;
 
 import java.util.List;
-import java.util.Optional;
 
 
 public interface CityService {
-
-    Optional<CityDto> findCityByName(String cityName);
 
     List<CityDto> findCitiesWithPagination(int page, int pageSize);
 

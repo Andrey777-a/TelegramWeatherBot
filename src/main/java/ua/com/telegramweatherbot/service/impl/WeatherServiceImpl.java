@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import ua.com.telegramweatherbot.Model.dto.WeatherResponse;
+import ua.com.telegramweatherbot.model.dto.WeatherResponse;
 import ua.com.telegramweatherbot.service.WeatherService;
 
 import java.util.ArrayList;

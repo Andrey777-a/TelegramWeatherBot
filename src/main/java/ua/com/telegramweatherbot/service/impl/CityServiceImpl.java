@@ -10,16 +10,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
-import ua.com.telegramweatherbot.Model.dto.CityDto;
-import ua.com.telegramweatherbot.Model.dto.CityResponse;
 import ua.com.telegramweatherbot.mapper.CityMapper;
+import ua.com.telegramweatherbot.model.dto.CityDto;
+import ua.com.telegramweatherbot.model.dto.CityResponse;
 import ua.com.telegramweatherbot.repository.CityRepository;
 import ua.com.telegramweatherbot.service.CityService;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,12 +32,6 @@ public class CityServiceImpl implements CityService {
     private final RestClient restClient;
     private final CityMapper cityMapper;
     private final CityRepository cityRepository;
-
-    @Override
-    public Optional<CityDto> findCityByName(String cityName) {
-        return cityRepository.findCitiesByName(cityName)
-                .map(cityMapper::toDto);
-    }
 
     @Override
     public List<CityDto> findCitiesWithPagination(int page, int pageSize) {
@@ -60,6 +53,7 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public List<CityResponse> getCity(String cityName) {
+
         List<CityResponse> cityResponses = new ArrayList<>();
 
         List<CityResponse> city = restClient.get()
@@ -80,9 +74,11 @@ public class CityServiceImpl implements CityService {
 
     @Override
     public List<CityResponse> getCityLocalisation(List<String> cityNames) {
+
         List<CityResponse> cityResponses = new ArrayList<>();
 
         for (String cityName : cityNames) {
+
             List<CityResponse> city = restClient.get()
                     .uri(uriBuilder -> uriBuilder.path("/geo/1.0/direct")
                             .queryParam("q", cityName)
@@ -93,6 +89,7 @@ public class CityServiceImpl implements CityService {
                     });
 
             cityResponses.add(Objects.requireNonNull(city.getFirst()));
+
         }
 
         log.info("{}", cityResponses);

@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import ua.com.telegramweatherbot.Model.dto.CityDto;
+import ua.com.telegramweatherbot.model.dto.CityDto;
 import ua.com.telegramweatherbot.service.CityService;
 
 import java.util.ArrayList;
@@ -18,55 +18,85 @@ public class Button {
     private final CityService cityService;
 
     public static InlineKeyboardMarkup inlineMarkupLocalisation() {
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
         List<InlineKeyboardButton> row = new ArrayList<>();
 
         InlineKeyboardButton rusButton = new InlineKeyboardButton();
         rusButton.setText("Русский");
-        rusButton.setCallbackData("ru");
+        rusButton.setCallbackData("language_ru");
 
         InlineKeyboardButton ukrButton = new InlineKeyboardButton();
         ukrButton.setText("Українскій");
-        ukrButton.setCallbackData("uk");
+        ukrButton.setCallbackData("language_uk");
 
         InlineKeyboardButton engButton = new InlineKeyboardButton();
         engButton.setText("English");
-        engButton.setCallbackData("en");
+        engButton.setCallbackData("language_en");
 
         row.add(rusButton);
         row.add(ukrButton);
         row.add(engButton);
 
-        markup.setKeyboard(buttons);
-
         buttons.add(row);
 
-        return markup;
+        return InlineKeyboardMarkup.builder()
+                .keyboard(buttons)
+                .build();
     }
 
     public static InlineKeyboardMarkup inlineMarkupSettings() {
 
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
         List<InlineKeyboardButton> row = new ArrayList<>();
 
-        InlineKeyboardButton lang = new InlineKeyboardButton();
-        lang.setText("Мова");
+        InlineKeyboardButton lang = new InlineKeyboardButton("Мова");
         lang.setCallbackData("lang");
 
         row.add(lang);
 
-        markup.setKeyboard(buttons);
+        InlineKeyboardButton notifications = new InlineKeyboardButton("Інформування");
+        notifications.setCallbackData("time_notification");
+
+        row.add(notifications);
+
+        InlineKeyboardButton defaultCity = new InlineKeyboardButton("Місто");
+        defaultCity.setCallbackData("default_city");
+
+        row.add(defaultCity);
 
         buttons.add(row);
 
-        return markup;
+        return InlineKeyboardMarkup.builder()
+                .keyboard(buttons)
+                .build();
     }
 
-    public InlineKeyboardMarkup inlineMarkupAllCity(int page, int pageSize) {
+    public static InlineKeyboardMarkup inlineTimeKeyboard() {
+
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        for (int hour = 9; hour <= 17; hour++) {
+
+            String time = String.format("%02d:00", hour);
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(time.trim());
+            button.setCallbackData(time);
+
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            row.add(button);
+
+            rows.add(row);
+
+        }
+        return InlineKeyboardMarkup.builder()
+                .keyboard(rows)
+                .build();
+    }
+
+    public InlineKeyboardMarkup inlineMarkupAllCity(int page, int pageSize, boolean isForNotification) {
 
         int totalCities = cityService.countCities();
 
@@ -77,7 +107,11 @@ public class Button {
         for (CityDto cityDto : cities) {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(cityDto.getName());
-            button.setCallbackData("city_" + cityDto.getName());
+
+            String callBackData = isForNotification ?
+                    "change_" + cityDto.getName() : "city_" + cityDto.getName();
+
+            button.setCallbackData(callBackData.trim());
 
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
             rowInline.add(button);
@@ -89,10 +123,9 @@ public class Button {
         List<InlineKeyboardButton> navigationRow = getInlineKeyboardButtons(page, pageSize, totalCities);
         rowsInline.add(navigationRow);
 
-        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup();
-        markupInline.setKeyboard(rowsInline);
-
-        return markupInline;
+        return InlineKeyboardMarkup.builder()
+                .keyboard(rowsInline)
+                .build();
 
     }
 
