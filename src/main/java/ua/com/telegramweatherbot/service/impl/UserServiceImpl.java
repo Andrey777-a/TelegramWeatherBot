@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import ua.com.telegramweatherbot.model.dto.UserDto;
-import ua.com.telegramweatherbot.model.entity.UserEntity;
 import ua.com.telegramweatherbot.exception.UserNotFoundException;
 import ua.com.telegramweatherbot.mapper.UserMapper;
+import ua.com.telegramweatherbot.model.dto.UserDto;
+import ua.com.telegramweatherbot.model.entity.UserEntity;
 import ua.com.telegramweatherbot.repository.UserRepository;
 import ua.com.telegramweatherbot.service.UserService;
 
@@ -34,7 +34,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
-    //        @CacheEvict(value = "UserService::findByChatId", key = "#user.chatId")
     @Transactional
     @Override
     public void createUser(Update update) {
@@ -42,9 +41,8 @@ public class UserServiceImpl implements UserService {
         long chatId = update.getMessage().getChatId();
         User userFromTg = update.getMessage().getFrom();
 
-        boolean empty = userRepository.findByChatId(chatId).isEmpty();
+        if (userRepository.findByChatId(chatId).isEmpty()) {
 
-        if (empty) {
             UserEntity user = UserEntity.builder()
                     .chatId(chatId)
                     .firstname(userFromTg.getFirstName())
@@ -56,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
             userRepository.save(user);
 
-            log.info("User: {}, telegram id: {}, time: {} - added",
+            log.info("User: {}, chat id: {}, time: {} - added",
                     user.getUsername(), user.getChatId(), user.getRegisteredAt());
         }
     }
@@ -71,7 +69,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @CacheEvict(value = "UserService::findByChatId", key = "#chatId")
+    @CacheEvict(value = "UserService::getUserLanguage", key = "#chatId")
     @Transactional
     @Override
     public void changeLanguage(long chatId, String language) {
@@ -118,5 +116,14 @@ public class UserServiceImpl implements UserService {
                 }, () -> {
                     throw new UserNotFoundException("User not found");
                 });
+    }
+
+    @Cacheable(value = "UserService::getUserLanguage", key = "#chatId")
+    @Override
+    public String getUserLanguage(long chatId) {
+        return userRepository
+                .findByChatId(chatId)
+                .map(UserEntity::getLanguage)
+                .orElse("uk");
     }
 }

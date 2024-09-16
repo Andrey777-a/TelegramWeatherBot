@@ -33,6 +33,8 @@ public class CityServiceImpl implements CityService {
     private final CityMapper cityMapper;
     private final CityRepository cityRepository;
 
+    @Cacheable(value = "CityService::findCitiesWithPagination",
+            key = "{#page, #pageSize}", unless = "#result==null")
     @Override
     public List<CityDto> findCitiesWithPagination(int page, int pageSize) {
 
@@ -51,6 +53,7 @@ public class CityServiceImpl implements CityService {
         return cityRepository.countAllBy();
     }
 
+    @Cacheable(value = "CityService::cityName", key = "#cityName")
     @Override
     public List<CityResponse> getCity(String cityName) {
 

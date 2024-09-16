@@ -3,11 +3,14 @@ spring:
     import: optional:file:.env[.properties]
   application:
     name: TelegramWeatherBot
+  messages:
+    basename: messages
+    encoding: UTF-8
   cache:
     type: redis
     cache-names: redis-cache
     redis:
-      time-to-live: 10m
+      time-to-live: 60m
   data:
     redis:
       host: ${REDIS_HOST}

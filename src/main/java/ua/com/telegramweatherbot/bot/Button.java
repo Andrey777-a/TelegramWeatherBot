@@ -1,38 +1,48 @@
 package ua.com.telegramweatherbot.bot;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ua.com.telegramweatherbot.model.dto.CityDto;
+import ua.com.telegramweatherbot.model.dto.CityResponse;
 import ua.com.telegramweatherbot.service.CityService;
+import ua.com.telegramweatherbot.service.LocalizationService;
+import ua.com.telegramweatherbot.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Service
 public class Button {
 
     private final CityService cityService;
+    private final UserService userService;
+    private final LocalizationService localizationService;
 
-    public static InlineKeyboardMarkup inlineMarkupLocalisation() {
+    public InlineKeyboardMarkup inlineMarkupLocalisation(long chatId) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
         List<InlineKeyboardButton> row = new ArrayList<>();
 
-        InlineKeyboardButton rusButton = new InlineKeyboardButton();
-        rusButton.setText("Русский");
+        InlineKeyboardButton rusButton = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.ru", chatId)
+        );
         rusButton.setCallbackData("language_ru");
 
-        InlineKeyboardButton ukrButton = new InlineKeyboardButton();
-        ukrButton.setText("Українскій");
+        InlineKeyboardButton ukrButton = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.uk", chatId)
+        );
         ukrButton.setCallbackData("language_uk");
 
-        InlineKeyboardButton engButton = new InlineKeyboardButton();
-        engButton.setText("English");
+        InlineKeyboardButton engButton = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.en", chatId)
+        );
         engButton.setCallbackData("language_en");
 
         row.add(rusButton);
@@ -46,23 +56,29 @@ public class Button {
                 .build();
     }
 
-    public static InlineKeyboardMarkup inlineMarkupSettings() {
+    public InlineKeyboardMarkup inlineMarkupSettings(long chatId) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
         List<InlineKeyboardButton> row = new ArrayList<>();
 
-        InlineKeyboardButton lang = new InlineKeyboardButton("Мова");
+        InlineKeyboardButton lang = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.language", chatId)
+        );
         lang.setCallbackData("lang");
 
         row.add(lang);
 
-        InlineKeyboardButton notifications = new InlineKeyboardButton("Інформування");
+        InlineKeyboardButton notifications = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.time.notification", chatId)
+        );
         notifications.setCallbackData("time_notification");
 
         row.add(notifications);
 
-        InlineKeyboardButton defaultCity = new InlineKeyboardButton("Місто");
+        InlineKeyboardButton defaultCity = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.default.city", chatId)
+        );
         defaultCity.setCallbackData("default_city");
 
         row.add(defaultCity);
@@ -74,7 +90,7 @@ public class Button {
                 .build();
     }
 
-    public static InlineKeyboardMarkup inlineTimeKeyboard() {
+    public InlineKeyboardMarkup inlineTimeKeyboard() {
 
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
@@ -96,7 +112,10 @@ public class Button {
                 .build();
     }
 
-    public InlineKeyboardMarkup inlineMarkupAllCity(int page, int pageSize, boolean isForNotification) {
+    public InlineKeyboardMarkup inlineMarkupAllCity(int page,
+                                                    int pageSize,
+                                                    long chatId,
+                                                    boolean isForNotification) {
 
         int totalCities = cityService.countCities();
 
@@ -105,11 +124,19 @@ public class Button {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
         for (CityDto cityDto : cities) {
-            InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(cityDto.getName());
+
+            List<CityResponse> city = cityService.getCity(cityDto.getName());
+
+            String localNameCity = city.getFirst()
+                    .getLocalNameList()
+                    .get(userService.getUserLanguage(chatId));
+
+            InlineKeyboardButton button = new InlineKeyboardButton(localNameCity);
+//            button.setText(cityDto.getName());
 
             String callBackData = isForNotification ?
-                    "change_" + cityDto.getName() : "city_" + cityDto.getName();
+                    "change_" + localNameCity :
+                    "city_" + localNameCity;
 
             button.setCallbackData(callBackData.trim());
 
@@ -152,16 +179,22 @@ public class Button {
     }
 
 
-    public static ReplyKeyboardMarkup replyKeyboardMarkup() {
+    public ReplyKeyboardMarkup replyKeyboardMarkup(long chatId) {
 
         KeyboardRow row = new KeyboardRow();
 
-        KeyboardButton locationButton = new KeyboardButton("Відправити геопозицію");
+        KeyboardButton locationButton = new KeyboardButton(
+                localizationService.getLocalizedButtonText("button.location", chatId)
+        );
         locationButton.setRequestLocation(true);
 
-        KeyboardButton cityButton = new KeyboardButton("Вибрати місто");
+        KeyboardButton cityButton = new KeyboardButton(
+                localizationService.getLocalizedButtonText("button.city", chatId)
+        );
 
-        KeyboardButton settingsButton = new KeyboardButton("Налаштування");
+        KeyboardButton settingsButton = new KeyboardButton(
+                localizationService.getLocalizedButtonText("button.settings", chatId)
+        );
 
         row.add(locationButton);
         row.add(cityButton);

@@ -20,14 +20,14 @@ public class WeatherRestController {
     @GetMapping("/{lat}&{lon}")
     public List<WeatherResponse> getCityLocation(@PathVariable double lat, @PathVariable double lon) {
 
-        return weatherService.getWeatherByCoordinates(lat, lon);
+        return weatherService.getWeatherByCoordinates(lat, lon, 0);
 
     }
 
     @GetMapping()
     public List<WeatherResponse> getCity(@RequestParam String city) {
 
-        return weatherService.getWeatherByCity(city);
+        return weatherService.getWeatherByCity(city, 0);
 
     }
 

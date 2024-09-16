@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ua.com.telegramweatherbot.model.dto.UserDto;
-import ua.com.telegramweatherbot.service.CityService;
+import ua.com.telegramweatherbot.service.MessageService;
 import ua.com.telegramweatherbot.service.UserService;
 
 import java.time.LocalTime;
@@ -13,21 +13,28 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SettingsService {
+public class Settings {
 
     private final UserService userService;
     private final MessageService messageService;
-    private final CityService cityService;
+    private final Button button;
 
     public void showSettings(long chatId) {
 
-        messageService.sendMessage(chatId, "Налаштування:", Button.inlineMarkupSettings());
+        messageService.sendMessage(
+                chatId,
+                "show.settings",
+                button.inlineMarkupSettings(chatId)
+        );
 
     }
 
     public void showLanguageOptions(long chatId) {
 
-        messageService.sendMessage(chatId, "Виберіть мову:", Button.inlineMarkupLocalisation());
+        messageService.sendMessage(chatId,
+                "show.language.options",
+                button.inlineMarkupLocalisation(chatId)
+        );
 
     }
 
@@ -35,14 +42,14 @@ public class SettingsService {
 
         userService.changeLanguage(chatId, lang);
 
-        messageService.sendMessage(chatId, "Мова змінена. Гарного дня.");
+        messageService.sendMessage(chatId, "change.language");
 
     }
 
     public void showTimeOptions(long chatId) {
 
-        messageService.sendMessage(chatId, "Виберіть час:",
-                Button.inlineTimeKeyboard());
+        messageService.sendMessage(chatId, "show.time.options",
+                button.inlineTimeKeyboard());
 
     }
 
@@ -50,7 +57,7 @@ public class SettingsService {
 
         userService.changeTimeNotification(chatId, LocalTime.parse(time));
 
-        messageService.sendMessage(chatId, "Час інформування встановлений.");
+        messageService.sendMessage(chatId, "change.time.notification");
 
     }
 
@@ -60,20 +67,20 @@ public class SettingsService {
 
         if (Optional.ofNullable(byChatId.get().getCity()).isEmpty()) {
             messageService.sendMessage(chatId,
-                    "Зараз базове місто не вказано.");
+                    "default.city.no");
 
             messageService.sendMessage(chatId,
-                    "Виберіть місто",
-                    new Button(cityService).inlineMarkupAllCity(1, 5, isForNotification));
+                    "show.options.change.city",
+                    button.inlineMarkupAllCity(1, 5, chatId, isForNotification));
 
         } else {
 
             messageService.sendMessage(chatId,
-                    "Зараз у вас встановлено місто " + byChatId.get().getCity());
+                    "default.city.yes", byChatId.get().getCity());
 
             messageService.sendMessage(chatId,
-                    "Виберіть місто",
-                    new Button(cityService).inlineMarkupAllCity(1, 5, isForNotification));
+                    "show.options.change.city",
+                    button.inlineMarkupAllCity(1, 5,chatId, isForNotification));
         }
 
     }
@@ -84,11 +91,13 @@ public class SettingsService {
 
         if (Optional.ofNullable(byChatId.get().getCity()).equals(city.trim())) {
 
-            messageService.sendMessage(chatId, "Місто не змінено, ви обрали поточне місто.");
+            messageService.sendMessage(chatId, "no.change.default.city");
 
         } else {
+
             userService.changeCity(chatId, city);
-            messageService.sendMessage(chatId, "Місто змінено.");
+            messageService.sendMessage(chatId, "change.default.city");
+
         }
     }
 

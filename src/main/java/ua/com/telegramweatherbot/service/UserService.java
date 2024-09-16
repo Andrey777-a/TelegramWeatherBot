@@ -21,4 +21,6 @@ public interface UserService {
     void changeTimeNotification(long chatId, LocalTime time);
 
     void changeCity(Long chatId, String city);
+
+    String getUserLanguage(long chatId);
 }

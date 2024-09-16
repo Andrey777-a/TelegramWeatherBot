@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface WeatherService {
 
-    List<WeatherResponse> getWeatherByCoordinates(double lat, double lon);
+    List<WeatherResponse> getWeatherByCoordinates(double lat, double lon, long chatId);
 
-    List<WeatherResponse> getWeatherByCity(String city);
+    List<WeatherResponse> getWeatherByCity(String city, long chatId);
 }

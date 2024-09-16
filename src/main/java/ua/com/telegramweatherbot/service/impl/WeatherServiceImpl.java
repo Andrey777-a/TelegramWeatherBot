@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
+import ua.com.telegramweatherbot.service.UserService;
 import ua.com.telegramweatherbot.service.WeatherService;
 
 import java.util.ArrayList;
@@ -19,12 +20,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 public class WeatherServiceImpl implements WeatherService {
 
     @Value("${WEATHER_API_KEY}")
-    private String apiKey;
-
+    private final String apiKey;
     private final RestClient restClient;
+    private final UserService userService;
 
     @Override
-    public List<WeatherResponse> getWeatherByCoordinates(double lat, double lon) {
+    public List<WeatherResponse> getWeatherByCoordinates(double lat, double lon, long chatId) {
 
         List<WeatherResponse> weatherResponses = new ArrayList<>();
 
@@ -33,6 +34,7 @@ public class WeatherServiceImpl implements WeatherService {
                         .queryParam("lat", lat)
                         .queryParam("lon", lon)
                         .queryParam("apiKey", apiKey)
+                        .queryParam("lang", userService.getUserLanguage(chatId))
                         .queryParam("units", "metric")
                         .build())
                 .retrieve()
@@ -40,11 +42,13 @@ public class WeatherServiceImpl implements WeatherService {
 
         weatherResponses.add(body);
 
+        log.info("{}", weatherResponses);
+
         return weatherResponses;
     }
 
     @Override
-    public List<WeatherResponse> getWeatherByCity(String city) {
+    public List<WeatherResponse> getWeatherByCity(String city, long chatId) {
 
         List<WeatherResponse> weatherResponses = new ArrayList<>();
 
@@ -52,7 +56,7 @@ public class WeatherServiceImpl implements WeatherService {
                 .uri(uriBuilder -> uriBuilder.path("/data/2.5/weather")
                         .queryParam("q", city)
                         .queryParam("apiKey", apiKey)
-                        .queryParam("lang", "ru")
+                        .queryParam("lang", userService.getUserLanguage(chatId))
                         .queryParam("units", "metric")
                         .build())
                 .accept(APPLICATION_JSON)

@@ -1,7 +1,6 @@
 package ua.com.telegramweatherbot.bot;
 
 import lombok.NonNull;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,9 +8,11 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ua.com.telegramweatherbot.model.dto.CityResponse;
 import ua.com.telegramweatherbot.model.dto.UserDto;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
+import ua.com.telegramweatherbot.service.*;
 import ua.com.telegramweatherbot.service.impl.CityServiceImpl;
 import ua.com.telegramweatherbot.service.impl.UserServiceImpl;
 import ua.com.telegramweatherbot.service.impl.WeatherServiceImpl;
@@ -24,17 +25,24 @@ import java.util.Optional;
 public class TelegramWeatherBot extends TelegramLongPollingBot {
 
     private final String botName;
-    private final WeatherServiceImpl weatherService;
-    private final UserServiceImpl userService;
-    private final CityServiceImpl cityService;
+    private final WeatherService weatherService;
+    private final UserService userService;
+    private final CityService cityService;
     private final MessageService messageService;
-    private final SettingsService settingsService;
+    private final Settings settingsService;
+    private final Button button;
+    private final LocalizationService localizationService;
 
-    @SneakyThrows
     public TelegramWeatherBot(@Value("${BOT_KEY}") String botToken,
                               @Value("${BOT_NAME}") String botName,
                               WeatherServiceImpl weatherService,
-                              UserServiceImpl userService, CityServiceImpl cityService, MessageService messageService, SettingsService settingsService) {
+                              UserServiceImpl userService,
+                              CityServiceImpl cityService,
+                              MessageService messageService,
+                              Settings settingsService,
+                              Button button,
+                              LocalizationService localizationService
+    ) {
         super(botToken);
         this.botName = botName;
         this.weatherService = weatherService;
@@ -42,13 +50,23 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         this.cityService = cityService;
         this.messageService = messageService;
         this.settingsService = settingsService;
+        this.button = button;
+        this.localizationService = localizationService;
 
-        this.execute(
-                new SetMyCommands(
-                        BotCommands.LIST_OF_COMMANDS,
-                        new BotCommandScopeDefault(),
-                        null)
-        );
+        try {
+
+            this.execute(
+                    new SetMyCommands(
+                            BotCommands.LIST_OF_COMMANDS,
+                            new BotCommandScopeDefault(),
+                            null)
+            );
+
+        } catch (TelegramApiException e) {
+
+            log.error(e.getMessage());
+
+        }
     }
 
     @Override
@@ -86,12 +104,31 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
                 update.getMessage().getChatId() :
                 update.getCallbackQuery().getMessage().getChatId();
 
-        switch (receivedMessage) {
-            case "/start" -> startBot(update);
-            case "Вибрати місто" -> sendCityButtons(chatId, 1, 5, false);
-            case "Налаштування" -> settingsService.showSettings(chatId);
-            case "/help" -> messageService.sendHelpMessage(chatId);
-            default -> messageService.sendUnknownCommandMessage(chatId);
+        String settings = localizationService
+                .getLocalizedButtonText("button.settings", chatId);
+
+        String city = localizationService
+                .getLocalizedButtonText("button.city", chatId);
+
+
+        if (receivedMessage.equals("/start")) {
+
+            startBot(update);
+
+        } else if (receivedMessage.equals(city)) {
+
+            sendCityButtons(chatId, 1, 5, false);
+
+        } else if (receivedMessage.equals(settings)) {
+
+            settingsService.showSettings(chatId);
+
+        } else if (receivedMessage.equals("/help")) {
+
+            messageService.sendMessage(chatId, "help");
+
+        } else {
+            messageService.sendUnknownCommandMessage(chatId);
         }
 
     }
@@ -166,23 +203,16 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         String name = Optional.ofNullable(update.getMessage().getChat().getFirstName())
                 .orElse(update.getMessage().getChat().getUserName());
 
-        String format = String.format(""" 
-                Привіт, %s!
-                Приємо познайомитись, Я телеграм бот Барбос 🐶.
-                Ви можете дізнатися прогноз погоди для свого міста.
-                Скористайтесь кнопками для вибору налаштувань.
-                """, name);
-
-        messageService.sendMessage(chatId, format);
-        messageService.sendHelpMessage(chatId);
-
         userService.createUser(update);
+
+        messageService.sendMessage(chatId, "start", name);
+        messageService.sendMessage(chatId, "help");
 
     }
 
     private void getWeatherByCity(long chatId, String city, String lang) {
 
-        WeatherResponse weatherResponse = weatherService.getWeatherByCity(city).getFirst();
+        WeatherResponse weatherResponse = weatherService.getWeatherByCity(city, chatId).getFirst();
 
         List<CityResponse> localisation = cityService.getCity(city);
 
@@ -200,21 +230,17 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         double latitude = update.getMessage().getLocation().getLatitude();
         double longitude = update.getMessage().getLocation().getLongitude();
 
-        WeatherResponse response = weatherService
-                .getWeatherByCoordinates(latitude, longitude).getFirst();
+        WeatherResponse weatherResponse = weatherService
+                .getWeatherByCoordinates(latitude, longitude, chatId).getFirst();
 
-        String format = String.format("%s, %s°C",
-                response.getMain().getTemp(),
-                response.getWeather().getFirst().getDescription());
-
-        messageService.sendMessage(chatId, format);
+        messageService.sendWeatherInfo(chatId, weatherResponse);
 
     }
 
     private void sendCityButtons(long chatId, int page, int pageSize, boolean isForNotification) {
 
-        messageService.sendMessage(chatId, "Оберіть місто:",
-                new Button(cityService).inlineMarkupAllCity(page, pageSize, isForNotification));
+        messageService.sendMessage(chatId, "show.options.change.city",
+                button.inlineMarkupAllCity(page, pageSize, chatId, isForNotification));
 
     }
 }
