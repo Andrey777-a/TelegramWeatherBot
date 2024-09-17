@@ -132,7 +132,6 @@ public class Button {
                     .get(userService.getUserLanguage(chatId));
 
             InlineKeyboardButton button = new InlineKeyboardButton(localNameCity);
-//            button.setText(cityDto.getName());
 
             String callBackData = isForNotification ?
                     "change_" + localNameCity :
@@ -147,7 +146,9 @@ public class Button {
 
         }
 
-        List<InlineKeyboardButton> navigationRow = getInlineKeyboardButtons(page, pageSize, totalCities);
+        List<InlineKeyboardButton> navigationRow =
+                getInlineKeyboardButtons(page, pageSize, totalCities);
+
         rowsInline.add(navigationRow);
 
         return InlineKeyboardMarkup.builder()
@@ -156,7 +157,9 @@ public class Button {
 
     }
 
-    private List<InlineKeyboardButton> getInlineKeyboardButtons(int page, int pageSize, int totalCities) {
+    private List<InlineKeyboardButton> getInlineKeyboardButtons(int page,
+                                                                int pageSize,
+                                                                int totalCities) {
 
         int totalPages = (int) Math.ceil((double) totalCities / pageSize);
 

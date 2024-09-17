@@ -3,11 +3,14 @@ package ua.com.telegramweatherbot.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ua.com.telegramweatherbot.exception.UserAlreadyExistsException;
 import ua.com.telegramweatherbot.exception.UserNotFoundException;
 import ua.com.telegramweatherbot.mapper.UserMapper;
 import ua.com.telegramweatherbot.model.dto.UserDto;
@@ -34,34 +37,40 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
+    @Caching(
+            put = @CachePut(value = "UserService::findByChatId", key = "#result.chatId"),
+            evict = @CacheEvict(value = "UserService::getUserLanguage", key = "#result.chatId")
+    )
     @Transactional
     @Override
-    public void createUser(Update update) {
+    public UserDto createUser(Update update) {
 
         long chatId = update.getMessage().getChatId();
+
         User userFromTg = update.getMessage().getFrom();
 
-        if (userRepository.findByChatId(chatId).isEmpty()) {
-
-            UserEntity user = UserEntity.builder()
-                    .chatId(chatId)
-                    .firstname(userFromTg.getFirstName())
-                    .lastname(userFromTg.getLastName())
-                    .username(userFromTg.getUserName())
-                    .language(userFromTg.getLanguageCode())
-                    .registeredAt(LocalDateTime.now())
-                    .build();
-
-            userRepository.save(user);
-
-            log.info("User: {}, chat id: {}, time: {} - added",
-                    user.getUsername(), user.getChatId(), user.getRegisteredAt());
+        if (userRepository.findByChatId(chatId).isPresent()) {
+            throw new UserAlreadyExistsException("User with chatId " + chatId + " already exists");
         }
+
+        UserEntity user = UserEntity.builder()
+                .chatId(chatId)
+                .firstname(userFromTg.getFirstName())
+                .lastname(userFromTg.getLastName())
+                .username(userFromTg.getUserName())
+                .language(userFromTg.getLanguageCode())
+                .registeredAt(LocalDateTime.now())
+                .build();
+
+        userRepository.save(user);
+
+        log.info("User: {}, chat id: {}, time: {} - added",
+                user.getUsername(), user.getChatId(), user.getRegisteredAt());
+
+        return userMapper.toDto(user);
     }
 
-    @Cacheable(value = "UserService::findByChatId",
-            key = "#chatId",
-            unless = "#result==null")
+    @Cacheable(value = "UserService::findByChatId", key = "#chatId", unless = "#result==null")
     @Override
     public Optional<UserDto> findByChatId(long chatId) {
         return userRepository.findByChatId(chatId)
@@ -69,53 +78,51 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @CacheEvict(value = "UserService::getUserLanguage", key = "#chatId")
+    @Caching(
+            put = @CachePut(value = "UserService::findByChatId", key = "#chatId"),
+            evict = @CacheEvict(value = "UserService::getUserLanguage", key = "#chatId")
+    )
     @Transactional
-    @Override
-    public void changeLanguage(long chatId, String language) {
+    public UserDto changeLanguage(long chatId, String language) {
 
-        userRepository.findByChatId(chatId).ifPresentOrElse(
-                e -> {
-
+        return userRepository.findByChatId(chatId)
+                .map(e -> {
                     e.setLanguage(language);
-                    userRepository.saveAndFlush(e);
+                    return userRepository.saveAndFlush(e);
+                })
+                .map(userMapper::toDto)
+                .orElseThrow(
 
-                }, () -> {
-                    throw new UserNotFoundException("User not found");
-                }
-        );
+                );
     }
 
-    @CacheEvict(value = "UserService::findByChatId", key = "#chatId")
+    @CachePut(value = "UserService::findByChatId", key = "#chatId")
     @Transactional
     @Override
-    public void changeTimeNotification(long chatId, LocalTime time) {
+    public UserDto changeTimeNotification(long chatId, LocalTime time) {
 
-        userRepository.findByChatId(chatId)
-                .ifPresentOrElse(e -> {
-
+        return userRepository.findByChatId(chatId)
+                .map(e -> {
                     e.setNotificationTime(time);
-                    userRepository.saveAndFlush(e);
-
-                }, () -> {
-                    throw new UserNotFoundException("User not found");
-                });
+                    return userRepository.saveAndFlush(e);
+                }).map(userMapper::toDto)
+                .orElseThrow(
+                        () -> new UserNotFoundException("User not found")
+                );
     }
 
-    @CacheEvict(value = "UserService::findByChatId", key = "#chatId")
+    @CachePut(value = "UserService::findByChatId", key = "#chatId")
     @Transactional
     @Override
-    public void changeCity(Long chatId, String city) {
-
-        userRepository.findByChatId(chatId)
-                .ifPresentOrElse(e -> {
-
+    public UserDto changeCity(Long chatId, String city) {
+        return userRepository.findByChatId(chatId)
+                .map(e -> {
                     e.setCity(city);
-                    userRepository.saveAndFlush(e);
-
-                }, () -> {
-                    throw new UserNotFoundException("User not found");
-                });
+                    return userRepository.saveAndFlush(e);
+                }).map(userMapper::toDto)
+                .orElseThrow(
+                        () -> new UserNotFoundException("User not found")
+                );
     }
 
     @Cacheable(value = "UserService::getUserLanguage", key = "#chatId")

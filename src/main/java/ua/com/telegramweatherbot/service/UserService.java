@@ -12,15 +12,16 @@ public interface UserService {
 
     List<UserEntity> findAll();
 
-    void createUser(Update update);
+    UserDto createUser(Update update);
 
     Optional<UserDto> findByChatId(long chatId);
 
-    void changeLanguage(long chatId, String language);
+    UserDto changeLanguage(long chatId, String language);
 
-    void changeTimeNotification(long chatId, LocalTime time);
+    UserDto changeTimeNotification(long chatId, LocalTime time);
 
-    void changeCity(Long chatId, String city);
+    UserDto changeCity(Long chatId, String city);
 
     String getUserLanguage(long chatId);
+
 }

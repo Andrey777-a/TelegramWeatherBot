@@ -3,9 +3,10 @@ package ua.com.telegramweatherbot.exception;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class NotFoundException extends RuntimeException {
+public class UserAlreadyExistsException extends RuntimeException{
 
-    public NotFoundException(String message) {
+    public UserAlreadyExistsException(String message) {
         super(message);
     }
+
 }

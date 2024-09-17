@@ -13,9 +13,6 @@ import ua.com.telegramweatherbot.model.dto.CityResponse;
 import ua.com.telegramweatherbot.model.dto.UserDto;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
 import ua.com.telegramweatherbot.service.*;
-import ua.com.telegramweatherbot.service.impl.CityServiceImpl;
-import ua.com.telegramweatherbot.service.impl.UserServiceImpl;
-import ua.com.telegramweatherbot.service.impl.WeatherServiceImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,9 +32,9 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
     public TelegramWeatherBot(@Value("${BOT_KEY}") String botToken,
                               @Value("${BOT_NAME}") String botName,
-                              WeatherServiceImpl weatherService,
-                              UserServiceImpl userService,
-                              CityServiceImpl cityService,
+                              WeatherService weatherService,
+                              UserService userService,
+                              CityService cityService,
                               MessageService messageService,
                               Settings settingsService,
                               Button button,
@@ -217,8 +214,6 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         List<CityResponse> localisation = cityService.getCity(city);
 
         String localNameCity = localisation.getFirst().getLocalNameList().get(lang);
-
-        log.info("{}", weatherResponse);
 
         messageService.sendWeatherInfo(chatId, localNameCity, weatherResponse);
 
