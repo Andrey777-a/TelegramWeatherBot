@@ -32,6 +32,8 @@ public class SchedulingServiceImpl implements SchedulingService {
             boolean hasCity = Optional.ofNullable(user.getCity()).isPresent();
             boolean hasNotificationTime = Optional.ofNullable(user.getNotificationTime()).isPresent();
 
+            String userUnits = userService.getUserUnits(user.getChatId());
+
             if (hasCity && hasNotificationTime) {
 
                 boolean time = LocalTime.now().getHour() == user.getNotificationTime().getHour();
@@ -49,7 +51,7 @@ public class SchedulingServiceImpl implements SchedulingService {
 
                     messageService.sendWeatherInfo(
                             user.getChatId(),
-                            localNameCity, weatherByCity.getFirst()
+                            localNameCity, weatherByCity.getFirst(), userUnits
                     );
 
                 }

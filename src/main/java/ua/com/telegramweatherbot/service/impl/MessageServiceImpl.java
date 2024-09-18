@@ -37,18 +37,21 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void sendWeatherInfo(long chatId, String localNameCity, WeatherResponse weatherResponse) {
+    public void sendWeatherInfo(long chatId, String localNameCity, WeatherResponse weatherResponse,
+                                String unit) {
 
         sendMessage(chatId, "weather", localNameCity,
                 weatherResponse.getMain().getTemp(),
+                unit,
                 weatherResponse.getWeather().getFirst().getDescription());
     }
 
     @Override
-    public void sendWeatherInfo(long chatId, WeatherResponse weatherResponse) {
+    public void sendWeatherInfo(long chatId, WeatherResponse weatherResponse, String unit) {
 
         sendMessage(chatId, "weather.location",
                 weatherResponse.getMain().getTemp(),
+                unit,
                 weatherResponse.getWeather().getFirst().getDescription());
     }
 

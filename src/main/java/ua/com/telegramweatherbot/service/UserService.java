@@ -24,4 +24,8 @@ public interface UserService {
 
     String getUserLanguage(long chatId);
 
+    UserDto changeUnits(long chatId, String units);
+
+    String getUserUnits(long chatId);
+
 }

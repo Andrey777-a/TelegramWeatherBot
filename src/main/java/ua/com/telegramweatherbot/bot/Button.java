@@ -24,30 +24,62 @@ public class Button {
     private final UserService userService;
     private final LocalizationService localizationService;
 
-    public InlineKeyboardMarkup inlineMarkupLocalisation(long chatId) {
+    public InlineKeyboardMarkup inlineMarkupLanguage(long chatId) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
         List<InlineKeyboardButton> row = new ArrayList<>();
 
         InlineKeyboardButton rusButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.ru", chatId)
+                localizationService.getLocalizedButtonText("button.language.ru", chatId)
         );
         rusButton.setCallbackData("language_ru");
 
         InlineKeyboardButton ukrButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.uk", chatId)
+                localizationService.getLocalizedButtonText("button.language.uk", chatId)
         );
         ukrButton.setCallbackData("language_uk");
 
         InlineKeyboardButton engButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.en", chatId)
+                localizationService.getLocalizedButtonText("button.language.en", chatId)
         );
         engButton.setCallbackData("language_en");
 
         row.add(rusButton);
         row.add(ukrButton);
         row.add(engButton);
+
+        buttons.add(row);
+
+        return InlineKeyboardMarkup.builder()
+                .keyboard(buttons)
+                .build();
+    }
+
+    public InlineKeyboardMarkup inlineMarkupMetric(long chatId) {
+
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+
+        List<InlineKeyboardButton> row = new ArrayList<>();
+
+        InlineKeyboardButton standardButton = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.unit.standard", chatId)
+        );
+        standardButton.setCallbackData("units_standard");
+
+        InlineKeyboardButton metricButton = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.unit.metric", chatId)
+        );
+        metricButton.setCallbackData("units_metric");
+
+        InlineKeyboardButton imperialButton = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.unit.imperial", chatId)
+        );
+        imperialButton.setCallbackData("units_imperial");
+
+        row.add(standardButton);
+        row.add(metricButton);
+        row.add(imperialButton);
 
         buttons.add(row);
 
@@ -82,6 +114,13 @@ public class Button {
         defaultCity.setCallbackData("default_city");
 
         row.add(defaultCity);
+
+        InlineKeyboardButton units = new InlineKeyboardButton(
+                localizationService.getLocalizedButtonText("button.units", chatId)
+        );
+        units.setCallbackData("default_units");
+
+        row.add(units);
 
         buttons.add(row);
 

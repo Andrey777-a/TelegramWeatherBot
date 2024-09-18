@@ -26,7 +26,7 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
     private final UserService userService;
     private final CityService cityService;
     private final MessageService messageService;
-    private final Settings settingsService;
+    private final Settings settings;
     private final Button button;
     private final LocalizationService localizationService;
 
@@ -36,7 +36,7 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
                               UserService userService,
                               CityService cityService,
                               MessageService messageService,
-                              Settings settingsService,
+                              Settings settings,
                               Button button,
                               LocalizationService localizationService
     ) {
@@ -46,7 +46,7 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         this.userService = userService;
         this.cityService = cityService;
         this.messageService = messageService;
-        this.settingsService = settingsService;
+        this.settings = settings;
         this.button = button;
         this.localizationService = localizationService;
 
@@ -107,7 +107,6 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         String city = localizationService
                 .getLocalizedButtonText("button.city", chatId);
 
-
         if (receivedMessage.equals("/start")) {
 
             startBot(update);
@@ -118,16 +117,21 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
         } else if (receivedMessage.equals(settings)) {
 
-            settingsService.showSettings(chatId);
+            this.settings.showSettings(chatId);
 
         } else if (receivedMessage.equals("/help")) {
 
             messageService.sendMessage(chatId, "help");
 
-        } else {
-            messageService.sendUnknownCommandMessage(chatId);
-        }
+        } else if (receivedMessage.equals("/settings")) {
 
+            this.settings.showSettings(chatId);
+
+        } else {
+
+            messageService.sendUnknownCommandMessage(chatId);
+
+        }
     }
 
     private void handleCallbackQuery(Update update) {
@@ -155,11 +159,11 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
         } else if (callbackData.equals("lang")) {
 
-            settingsService.showLanguageOptions(chatId);
+            settings.showLanguageOptions(chatId);
 
         } else if (callbackData.startsWith("language_")) {
 
-            settingsService.changeLanguageLocalisation(chatId, callbackData.split("_")[1]);
+            settings.changeLanguageLocalisation(chatId, callbackData.split("_")[1]);
 
         } else if (callbackData.equals("time_notification")) {
 
@@ -167,27 +171,35 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
             if (Optional.ofNullable(byChatId.get().getCity()).isEmpty()) {
 
-                settingsService.showOptionsChangeCity(chatId, true);
+                settings.showOptionsChangeCity(chatId, true);
 
-                settingsService.showTimeOptions(chatId);
+                settings.showTimeOptions(chatId);
 
             } else {
 
-                settingsService.showTimeOptions(chatId);
+                settings.showTimeOptions(chatId);
 
             }
 
         } else if (callbackData.matches("^([0][9]|[1][0-7]):[0-5][0-9]$")) {
 
-            settingsService.changeTimeNotification(chatId, callbackData);
+            settings.changeTimeNotification(chatId, callbackData);
 
         } else if (callbackData.equals("default_city")) {
 
-            settingsService.showOptionsChangeCity(chatId, true);
+            settings.showOptionsChangeCity(chatId, true);
 
         } else if (callbackData.startsWith("change_")) {
 
-            settingsService.changeDefaultCity(chatId, callbackData.split("_")[1]);
+            settings.changeDefaultCity(chatId, callbackData.split("_")[1]);
+
+        } else if (callbackData.equals("default_units")) {
+
+            settings.showUnitsOptions(chatId);
+
+        } else if (callbackData.startsWith("units_")) {
+
+            settings.changeDefaultUnits(chatId, callbackData.split("_")[1]);
 
         }
 
@@ -197,8 +209,18 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
         long chatId = update.getMessage().getChat().getId();
 
+        boolean present = userService.findByChatId(chatId).isPresent();
+
         String name = Optional.ofNullable(update.getMessage().getChat().getFirstName())
                 .orElse(update.getMessage().getChat().getUserName());
+
+        if (present) {
+
+            messageService.sendMessage(chatId, "start.already.exists");
+
+            return;
+
+        }
 
         userService.createUser(update);
 
@@ -215,7 +237,9 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
         String localNameCity = localisation.getFirst().getLocalNameList().get(lang);
 
-        messageService.sendWeatherInfo(chatId, localNameCity, weatherResponse);
+        String unit = getUnit(chatId);
+
+        messageService.sendWeatherInfo(chatId, localNameCity, weatherResponse, unit);
 
     }
 
@@ -228,8 +252,22 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
         WeatherResponse weatherResponse = weatherService
                 .getWeatherByCoordinates(latitude, longitude, chatId).getFirst();
 
-        messageService.sendWeatherInfo(chatId, weatherResponse);
+        String unit = getUnit(chatId);
 
+        messageService.sendWeatherInfo(chatId, weatherResponse, unit);
+
+    }
+
+    private String getUnit(long chatId) {
+        String unit = "";
+
+        switch (userService.getUserUnits(chatId)) {
+            case "standard" -> unit = "K";
+            case "metric" -> unit = "°C";
+            case "imperial" -> unit = "°F";
+        }
+
+        return unit;
     }
 
     private void sendCityButtons(long chatId, int page, int pageSize, boolean isForNotification) {
@@ -238,4 +276,5 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
                 button.inlineMarkupAllCity(page, pageSize, chatId, isForNotification));
 
     }
+
 }

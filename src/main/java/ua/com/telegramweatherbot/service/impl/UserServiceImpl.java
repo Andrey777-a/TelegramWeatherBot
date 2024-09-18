@@ -49,6 +49,8 @@ public class UserServiceImpl implements UserService {
 
         User userFromTg = update.getMessage().getFrom();
 
+        String units = "metric";
+
         if (userRepository.findByChatId(chatId).isPresent()) {
             throw new UserAlreadyExistsException("User with chatId " + chatId + " already exists");
         }
@@ -59,6 +61,7 @@ public class UserServiceImpl implements UserService {
                 .lastname(userFromTg.getLastName())
                 .username(userFromTg.getUserName())
                 .language(userFromTg.getLanguageCode())
+                .units(units)
                 .registeredAt(LocalDateTime.now())
                 .build();
 
@@ -92,7 +95,26 @@ public class UserServiceImpl implements UserService {
                 })
                 .map(userMapper::toDto)
                 .orElseThrow(
+                        () -> new UserNotFoundException("User with chatId " + chatId + " not found")
+                );
+    }
 
+    @Caching(
+            put = @CachePut(value = "UserService::findByChatId", key = "#chatId"),
+            evict = @CacheEvict(value = "UserService::getUserUnits", key = "#chatId")
+    )
+    @Transactional
+    @Override
+    public UserDto changeUnits(long chatId, String units) {
+
+        return userRepository.findByChatId(chatId)
+                .map(e -> {
+                    e.setUnits(units);
+                    return userRepository.saveAndFlush(e);
+                })
+                .map(userMapper::toDto)
+                .orElseThrow(
+                        () -> new UserNotFoundException("User with chatId " + chatId + " not found")
                 );
     }
 
@@ -132,5 +154,14 @@ public class UserServiceImpl implements UserService {
                 .findByChatId(chatId)
                 .map(UserEntity::getLanguage)
                 .orElse("uk");
+    }
+
+    @Cacheable(value = "UserService::getUserUnits", key = "#chatId")
+    @Override
+    public String getUserUnits(long chatId) {
+        return userRepository
+                .findByChatId(chatId)
+                .map(UserEntity::getUnits)
+                .orElse("metric");
     }
 }

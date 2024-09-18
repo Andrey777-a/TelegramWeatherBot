@@ -33,7 +33,7 @@ public class Settings {
 
         messageService.sendMessage(chatId,
                 "show.language.options",
-                button.inlineMarkupLocalisation(chatId)
+                button.inlineMarkupLanguage(chatId)
         );
 
     }
@@ -43,6 +43,13 @@ public class Settings {
         userService.changeLanguage(chatId, lang);
 
         messageService.sendMessage(chatId, "change.language");
+
+    }
+
+    public void showUnitsOptions(long chatId) {
+
+        messageService.sendMessage(chatId, "show.units.options",
+                button.inlineMarkupMetric(chatId));
 
     }
 
@@ -97,6 +104,22 @@ public class Settings {
 
             userService.changeCity(chatId, city);
             messageService.sendMessage(chatId, "change.default.city");
+
+        }
+    }
+
+    public void changeDefaultUnits(long chatId, String units) {
+
+        Optional<UserDto> byChatId = userService.findByChatId(chatId);
+
+        if (Optional.ofNullable(byChatId.get().getUnits()).equals(units.trim())) {
+
+            messageService.sendMessage(chatId, "no.change.default.units");
+
+        } else {
+
+            userService.changeUnits(chatId, units);
+            messageService.sendMessage(chatId, "change.default.units");
 
         }
     }

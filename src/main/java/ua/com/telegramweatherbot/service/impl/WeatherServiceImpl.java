@@ -35,7 +35,7 @@ public class WeatherServiceImpl implements WeatherService {
                         .queryParam("lon", lon)
                         .queryParam("apiKey", apiKey)
                         .queryParam("lang", userService.getUserLanguage(chatId))
-                        .queryParam("units", "metric")
+                        .queryParam("units", userService.getUserUnits(chatId))
                         .build())
                 .retrieve()
                 .body(WeatherResponse.class);
@@ -57,7 +57,7 @@ public class WeatherServiceImpl implements WeatherService {
                         .queryParam("q", city)
                         .queryParam("apiKey", apiKey)
                         .queryParam("lang", userService.getUserLanguage(chatId))
-                        .queryParam("units", "metric")
+                        .queryParam("units", userService.getUserUnits(chatId))
                         .build())
                 .accept(APPLICATION_JSON)
                 .retrieve()
