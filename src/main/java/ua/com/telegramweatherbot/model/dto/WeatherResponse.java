@@ -35,7 +35,7 @@ public class WeatherResponse implements Serializable {
 
     @ToString
     @Getter
-    public static class Coord {
+    public static class Coord implements Serializable {
 
         @JsonProperty("lon")
         double lon;
@@ -46,7 +46,7 @@ public class WeatherResponse implements Serializable {
 
     @ToString
     @Getter
-    public static class Weather {
+    public static class Weather implements Serializable {
 
         @JsonProperty
         private String main;
@@ -58,7 +58,7 @@ public class WeatherResponse implements Serializable {
 
     @ToString
     @Getter
-    public static class Main {
+    public static class Main implements Serializable {
         @JsonProperty("temp")
         private double temp;
 
@@ -78,7 +78,7 @@ public class WeatherResponse implements Serializable {
 
     @ToString
     @Getter
-    public static class Wind {
+    public static class Wind implements Serializable {
 
         @JsonProperty("speed")
         private double speed;
@@ -87,7 +87,7 @@ public class WeatherResponse implements Serializable {
 
     @ToString
     @Getter
-    public static class Sys {
+    public static class Sys implements Serializable {
 
         @JsonProperty("country")
         private String country;

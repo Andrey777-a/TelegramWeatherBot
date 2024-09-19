@@ -3,6 +3,7 @@ package ua.com.telegramweatherbot.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
@@ -24,6 +25,7 @@ public class WeatherServiceImpl implements WeatherService {
     private final RestClient restClient;
     private final UserService userService;
 
+    @Cacheable(value = "WeatherService::getWeatherByCity", key = "{#lat, #lon, #chatId}")
     @Override
     public List<WeatherResponse> getWeatherByCoordinates(double lat, double lon, long chatId) {
 
@@ -47,6 +49,7 @@ public class WeatherServiceImpl implements WeatherService {
         return weatherResponses;
     }
 
+    @Cacheable(value = "WeatherService::getWeatherByCity", key = "{#city, #chatId}")
     @Override
     public List<WeatherResponse> getWeatherByCity(String city, long chatId) {
 
