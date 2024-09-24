@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import ua.com.telegramweatherbot.service.LocalizationService;
-import ua.com.telegramweatherbot.service.UserService;
+import ua.com.telegramweatherbot.service.UserInfoService;
 
 import java.util.Locale;
 
@@ -13,7 +13,7 @@ import java.util.Locale;
 public class LocalizationServiceImpl implements LocalizationService {
 
     private final MessageSource messageSource;
-    private final UserService userService;
+    private final UserInfoService userInfoService;
 
     @Override
     public String getMessageSource(String key, long chatId, Object... args) {
@@ -21,7 +21,7 @@ public class LocalizationServiceImpl implements LocalizationService {
         return messageSource.getMessage(
                 key,
                 args,
-                Locale.of(userService.getUserLanguage(chatId))
+                Locale.of(userInfoService.getUserLanguage(chatId))
         );
 
     }
@@ -32,7 +32,7 @@ public class LocalizationServiceImpl implements LocalizationService {
         return messageSource.getMessage(
                 key,
                 null,
-                Locale.of(userService.getUserLanguage(chatId))
+                Locale.of(userInfoService.getUserLanguage(chatId))
         );
 
     }

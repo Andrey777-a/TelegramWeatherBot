@@ -23,7 +23,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Autowired
     public MessageServiceImpl(@Lazy TelegramWeatherBot botService,
-                              LocalizationService localizationService, Button button) {
+                              LocalizationService localizationService,
+                              Button button) {
         this.botService = botService;
         this.localizationService = localizationService;
         this.button = button;
@@ -63,7 +64,7 @@ public class MessageServiceImpl implements MessageService {
         SendMessage build = SendMessage.builder()
                 .chatId(chatId)
                 .text(localMessage)
-                .replyMarkup(button.replyKeyboardMarkup(chatId))
+                .replyMarkup(button.replyKeyboardMarkupMenu(chatId))
                 .build();
 
         try {

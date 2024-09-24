@@ -7,7 +7,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
-import ua.com.telegramweatherbot.service.UserService;
+import ua.com.telegramweatherbot.service.UserInfoService;
 import ua.com.telegramweatherbot.service.WeatherService;
 
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class WeatherServiceImpl implements WeatherService {
     @Value("${WEATHER_API_KEY}")
     private final String apiKey;
     private final RestClient restClient;
-    private final UserService userService;
+    private final UserInfoService userInfoService;
 
     @Cacheable(value = "WeatherService::getWeatherByCity", key = "{#lat, #lon, #chatId}")
     @Override
@@ -36,8 +36,8 @@ public class WeatherServiceImpl implements WeatherService {
                         .queryParam("lat", lat)
                         .queryParam("lon", lon)
                         .queryParam("apiKey", apiKey)
-                        .queryParam("lang", userService.getUserLanguage(chatId))
-                        .queryParam("units", userService.getUserUnits(chatId))
+                        .queryParam("lang", userInfoService.getUserLanguage(chatId))
+                        .queryParam("units", userInfoService.getUserUnits(chatId))
                         .build())
                 .retrieve()
                 .body(WeatherResponse.class);
@@ -59,8 +59,8 @@ public class WeatherServiceImpl implements WeatherService {
                 .uri(uriBuilder -> uriBuilder.path("/data/2.5/weather")
                         .queryParam("q", city)
                         .queryParam("apiKey", apiKey)
-                        .queryParam("lang", userService.getUserLanguage(chatId))
-                        .queryParam("units", userService.getUserUnits(chatId))
+                        .queryParam("lang", userInfoService.getUserLanguage(chatId))
+                        .queryParam("units", userInfoService.getUserUnits(chatId))
                         .build())
                 .accept(APPLICATION_JSON)
                 .retrieve()

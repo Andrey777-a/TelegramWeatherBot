@@ -65,12 +65,11 @@ public class CityServiceImpl implements CityService {
                         .queryParam("apiKey", apiKey)
                         .build())
                 .retrieve()
-                .body(new ParameterizedTypeReference<>() {
-                });
+                .body(new ParameterizedTypeReference<>() {});
 
         cityResponses.add(Objects.requireNonNull(city).getFirst());
 
-        System.out.println(city);
+        log.info("{}", cityResponses);
 
         return cityResponses;
     }

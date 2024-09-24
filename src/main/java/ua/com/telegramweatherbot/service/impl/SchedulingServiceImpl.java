@@ -17,7 +17,8 @@ import java.util.Optional;
 public class SchedulingServiceImpl implements SchedulingService {
 
     private final MessageService messageService;
-    private final UserService userService;
+    private final UserManagementService userManagementService;
+    private final UserInfoService userInfoService;
     private final WeatherService weatherService;
     private final CityService cityService;
 
@@ -25,14 +26,14 @@ public class SchedulingServiceImpl implements SchedulingService {
     @Override
     public void sendWeatherNotification() {
 
-        List<UserEntity> all = userService.findAll();
+        List<UserEntity> all = userManagementService.findAll();
 
         for (UserEntity user : all) {
 
             boolean hasCity = Optional.ofNullable(user.getCity()).isPresent();
             boolean hasNotificationTime = Optional.ofNullable(user.getNotificationTime()).isPresent();
 
-            String userUnits = userService.getUserUnits(user.getChatId());
+            String userUnits = userInfoService.getUserUnits(user.getChatId());
 
             if (hasCity && hasNotificationTime) {
 

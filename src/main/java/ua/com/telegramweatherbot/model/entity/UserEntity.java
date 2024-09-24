@@ -2,6 +2,8 @@ package ua.com.telegramweatherbot.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -12,6 +14,7 @@ import java.time.LocalTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
 public class UserEntity {
 
@@ -34,6 +37,7 @@ public class UserEntity {
 
     private String units;
 
+    @CreatedDate
     @Column(name = "registered_at")
     private LocalDateTime registeredAt;
 
@@ -42,5 +46,19 @@ public class UserEntity {
 
     @Column(name = "notification_time")
     private LocalTime notificationTime;
+
+
+    @PrePersist
+    private void onUnits() {
+
+        if (units == null) {
+            units = "metric";
+        }
+
+        if (language == null) {
+            language = "uk";
+        }
+
+    }
 
 }

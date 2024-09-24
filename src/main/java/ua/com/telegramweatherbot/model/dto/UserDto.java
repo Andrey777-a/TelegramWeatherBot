@@ -11,9 +11,6 @@ import java.time.LocalTime;
 public class UserDto implements Serializable {
 
     @NotNull
-    Long telegramId;
-
-    @NotNull
     long chatId;
 
     String firstname;
@@ -31,7 +28,5 @@ public class UserDto implements Serializable {
     LocalDateTime lastWeatherRequest;
 
     LocalTime notificationTime;
-
-
 
 }

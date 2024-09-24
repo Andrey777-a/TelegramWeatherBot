@@ -1,11 +1,11 @@
-package ua.com.telegramweatherbot.bot;
+package ua.com.telegramweatherbot.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ua.com.telegramweatherbot.bot.Button;
 import ua.com.telegramweatherbot.model.dto.UserDto;
-import ua.com.telegramweatherbot.service.MessageService;
-import ua.com.telegramweatherbot.service.UserService;
+import ua.com.telegramweatherbot.service.*;
 
 import java.time.LocalTime;
 import java.util.Optional;
@@ -13,22 +13,25 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class Settings {
+public class SettingsServiceImpl implements SettingsShowService, SettingsChangeService {
 
-    private final UserService userService;
+    private final UserSettingsService userSettingsService;
+    private final UserManagementService userManagementService;
     private final MessageService messageService;
     private final Button button;
 
+    @Override
     public void showSettings(long chatId) {
 
         messageService.sendMessage(
                 chatId,
                 "show.settings",
-                button.inlineMarkupSettings(chatId)
+                button.inlineKeyboardSettings(chatId)
         );
 
     }
 
+    @Override
     public void showLanguageOptions(long chatId) {
 
         messageService.sendMessage(chatId,
@@ -38,39 +41,33 @@ public class Settings {
 
     }
 
-    public void changeLanguageLocalisation(long chatId, String lang) {
-
-        userService.changeLanguage(chatId, lang);
-
-        messageService.sendMessage(chatId, "change.language");
-
-    }
-
+    @Override
     public void showUnitsOptions(long chatId) {
 
         messageService.sendMessage(chatId, "show.units.options",
-                button.inlineMarkupMetric(chatId));
+                button.inlineKeyboardMetric(chatId));
 
     }
 
-    public void showTimeOptions(long chatId) {
+    @Override
+    public void showTimeForNotifications(long chatId) {
 
-        messageService.sendMessage(chatId, "show.time.options",
-                button.inlineTimeKeyboard());
+        Optional<UserDto> byChatId = userManagementService.findByChatId(chatId);
+
+        if (Optional.ofNullable(byChatId.get().getCity()).isEmpty()) {
+
+            showChangeCityOptions(chatId, true);
+
+        }
+
+        showTimeOptions(chatId);
 
     }
 
-    public void changeTimeNotification(long chatId, String time) {
+    @Override
+    public void showChangeCityOptions(long chatId, boolean isForNotification) {
 
-        userService.changeTimeNotification(chatId, LocalTime.parse(time));
-
-        messageService.sendMessage(chatId, "change.time.notification");
-
-    }
-
-    public void showOptionsChangeCity(long chatId, boolean isForNotification) {
-
-        Optional<UserDto> byChatId = userService.findByChatId(chatId);
+        Optional<UserDto> byChatId = userManagementService.findByChatId(chatId);
 
         if (Optional.ofNullable(byChatId.get().getCity()).isEmpty()) {
             messageService.sendMessage(chatId,
@@ -87,14 +84,33 @@ public class Settings {
 
             messageService.sendMessage(chatId,
                     "show.options.change.city",
-                    button.inlineMarkupAllCity(1, 5,chatId, isForNotification));
+                    button.inlineMarkupAllCity(1, 5, chatId, isForNotification));
         }
 
     }
 
+    @Override
+    public void changeLanguageLocalisation(long chatId, String lang) {
+
+        userSettingsService.changeLanguage(chatId, lang);
+
+        messageService.sendMessage(chatId, "change.language");
+
+    }
+
+    @Override
+    public void changeTimeNotification(long chatId, String time) {
+
+        userSettingsService.changeTimeNotification(chatId, LocalTime.parse(time));
+
+        messageService.sendMessage(chatId, "change.time.notification");
+
+    }
+
+    @Override
     public void changeDefaultCity(long chatId, String city) {
 
-        Optional<UserDto> byChatId = userService.findByChatId(chatId);
+        Optional<UserDto> byChatId = userManagementService.findByChatId(chatId);
 
         if (Optional.ofNullable(byChatId.get().getCity()).equals(city.trim())) {
 
@@ -102,15 +118,17 @@ public class Settings {
 
         } else {
 
-            userService.changeCity(chatId, city);
+            userSettingsService.changeCity(chatId, city);
+
             messageService.sendMessage(chatId, "change.default.city");
 
         }
     }
 
+    @Override
     public void changeDefaultUnits(long chatId, String units) {
 
-        Optional<UserDto> byChatId = userService.findByChatId(chatId);
+        Optional<UserDto> byChatId = userManagementService.findByChatId(chatId);
 
         if (Optional.ofNullable(byChatId.get().getUnits()).equals(units.trim())) {
 
@@ -118,10 +136,18 @@ public class Settings {
 
         } else {
 
-            userService.changeUnits(chatId, units);
+            userSettingsService.changeUnits(chatId, units);
+
             messageService.sendMessage(chatId, "change.default.units");
 
         }
+    }
+
+    private void showTimeOptions(long chatId) {
+
+        messageService.sendMessage(chatId, "show.time.options",
+                button.inlineTimeKeyboard());
+
     }
 
 }

@@ -11,118 +11,75 @@ import ua.com.telegramweatherbot.model.dto.CityDto;
 import ua.com.telegramweatherbot.model.dto.CityResponse;
 import ua.com.telegramweatherbot.service.CityService;
 import ua.com.telegramweatherbot.service.LocalizationService;
-import ua.com.telegramweatherbot.service.UserService;
+import ua.com.telegramweatherbot.service.UserInfoService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
 public class Button {
 
     private final CityService cityService;
-    private final UserService userService;
+    private final UserInfoService userInfoService;
     private final LocalizationService localizationService;
 
     public InlineKeyboardMarkup inlineMarkupLanguage(long chatId) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
-        List<InlineKeyboardButton> row = new ArrayList<>();
-
-        InlineKeyboardButton rusButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.language.ru", chatId)
+        List<InlineKeyboardButton> inlineKeyboardButtons = inlineKeyboardButtons(
+                chatId,
+                Map.of(
+                        "button.language.ru", "language_ru",
+                        "button.language.uk", "language_uk",
+                        "button.language.en", "language_en"
+                )
         );
-        rusButton.setCallbackData("language_ru");
 
-        InlineKeyboardButton ukrButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.language.uk", chatId)
-        );
-        ukrButton.setCallbackData("language_uk");
-
-        InlineKeyboardButton engButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.language.en", chatId)
-        );
-        engButton.setCallbackData("language_en");
-
-        row.add(rusButton);
-        row.add(ukrButton);
-        row.add(engButton);
-
-        buttons.add(row);
+        buttons.add(inlineKeyboardButtons);
 
         return InlineKeyboardMarkup.builder()
                 .keyboard(buttons)
                 .build();
     }
 
-    public InlineKeyboardMarkup inlineMarkupMetric(long chatId) {
+    public InlineKeyboardMarkup inlineKeyboardMetric(long chatId) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
-        List<InlineKeyboardButton> row = new ArrayList<>();
-
-        InlineKeyboardButton standardButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.unit.standard", chatId)
+        List<InlineKeyboardButton> inlineKeyboardButtons = inlineKeyboardButtons(
+                chatId,
+                Map.of(
+                        "button.unit.standard", "units_standard",
+                        "button.unit.metric", "units_metric",
+                        "button.unit.imperial", "units_imperial"
+                )
         );
-        standardButton.setCallbackData("units_standard");
 
-        InlineKeyboardButton metricButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.unit.metric", chatId)
-        );
-        metricButton.setCallbackData("units_metric");
-
-        InlineKeyboardButton imperialButton = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.unit.imperial", chatId)
-        );
-        imperialButton.setCallbackData("units_imperial");
-
-        row.add(standardButton);
-        row.add(metricButton);
-        row.add(imperialButton);
-
-        buttons.add(row);
+        buttons.add(inlineKeyboardButtons);
 
         return InlineKeyboardMarkup.builder()
                 .keyboard(buttons)
                 .build();
     }
 
-    public InlineKeyboardMarkup inlineMarkupSettings(long chatId) {
+    public InlineKeyboardMarkup inlineKeyboardSettings(long chatId) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
-        List<InlineKeyboardButton> row = new ArrayList<>();
-
-        InlineKeyboardButton lang = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.language", chatId)
+        List<InlineKeyboardButton> inlineKeyboardButtons = inlineKeyboardButtons(
+                chatId,
+                Map.of(
+                        "button.language", "lang",
+                        "button.time.notification", "time_notification",
+                        "button.default.city", "default_city",
+                        "button.units", "default_units"
+                )
         );
-        lang.setCallbackData("lang");
 
-        row.add(lang);
-
-        InlineKeyboardButton notifications = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.time.notification", chatId)
-        );
-        notifications.setCallbackData("time_notification");
-
-        row.add(notifications);
-
-        InlineKeyboardButton defaultCity = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.default.city", chatId)
-        );
-        defaultCity.setCallbackData("default_city");
-
-        row.add(defaultCity);
-
-        InlineKeyboardButton units = new InlineKeyboardButton(
-                localizationService.getLocalizedButtonText("button.units", chatId)
-        );
-        units.setCallbackData("default_units");
-
-        row.add(units);
-
-        buttons.add(row);
+        buttons.add(inlineKeyboardButtons);
 
         return InlineKeyboardMarkup.builder()
                 .keyboard(buttons)
@@ -168,7 +125,7 @@ public class Button {
 
             String localNameCity = city.getFirst()
                     .getLocalNameList()
-                    .get(userService.getUserLanguage(chatId));
+                    .get(userInfoService.getUserLanguage(chatId));
 
             InlineKeyboardButton button = new InlineKeyboardButton(localNameCity);
 
@@ -196,6 +153,27 @@ public class Button {
 
     }
 
+    public ReplyKeyboardMarkup replyKeyboardMarkupMenu(long chatId) {
+
+        List<KeyboardRow> keyboardRows = new ArrayList<>();
+
+        KeyboardRow keyboardButtons = replyKeyboardMarkups(chatId,
+                List.of(
+                        "button.location",
+                        "button.city",
+                        "button.settings"
+                ));
+
+        keyboardRows.add(keyboardButtons);
+
+        return ReplyKeyboardMarkup.builder()
+                .keyboard(keyboardRows)
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(false)
+                .build();
+
+    }
+
     private List<InlineKeyboardButton> getInlineKeyboardButtons(int page,
                                                                 int pageSize,
                                                                 int totalCities) {
@@ -205,51 +183,67 @@ public class Button {
         List<InlineKeyboardButton> navigationRow = new ArrayList<>();
 
         if (page > 1) {
+
             InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
             inlineKeyboardButton.setText("⬅");
             inlineKeyboardButton.setCallbackData("page_" + (page - 1));
             navigationRow.add(inlineKeyboardButton);
+
         }
+
         if (page < totalPages) {
 
             InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
             inlineKeyboardButton.setText("➡");
             inlineKeyboardButton.setCallbackData("page_" + (page + 1));
             navigationRow.add(inlineKeyboardButton);
+
         }
+
         return navigationRow;
     }
 
+    private List<InlineKeyboardButton> inlineKeyboardButtons(long chatId,
+                                                             Map<String, String> buttons) {
 
-    public ReplyKeyboardMarkup replyKeyboardMarkup(long chatId) {
+        List<InlineKeyboardButton> row = new ArrayList<>();
+
+        for (Map.Entry<String, String> entry : buttons.entrySet()) {
+
+            InlineKeyboardButton button = new InlineKeyboardButton(
+                    localizationService.getLocalizedButtonText(entry.getKey(), chatId)
+            );
+
+            button.setCallbackData(entry.getValue().trim());
+
+            row.add(button);
+
+        }
+
+        return row;
+
+    }
+
+    private KeyboardRow replyKeyboardMarkups(long chatId,
+                                             List<String> buttons) {
 
         KeyboardRow row = new KeyboardRow();
 
-        KeyboardButton locationButton = new KeyboardButton(
-                localizationService.getLocalizedButtonText("button.location", chatId)
-        );
-        locationButton.setRequestLocation(true);
+        for (String button : buttons) {
 
-        KeyboardButton cityButton = new KeyboardButton(
-                localizationService.getLocalizedButtonText("button.city", chatId)
-        );
+            KeyboardButton locationButton = new KeyboardButton(
+                    localizationService.getLocalizedButtonText(button, chatId)
+            );
 
-        KeyboardButton settingsButton = new KeyboardButton(
-                localizationService.getLocalizedButtonText("button.settings", chatId)
-        );
+            if (button.endsWith("location")) {
+                locationButton.setRequestLocation(true);
+            }
 
-        row.add(locationButton);
-        row.add(cityButton);
-        row.add(settingsButton);
+            row.add(locationButton);
 
-        List<KeyboardRow> keyboardRows = new ArrayList<>();
-        keyboardRows.add(row);
+        }
 
-        return ReplyKeyboardMarkup.builder()
-                .keyboard(keyboardRows)
-                .resizeKeyboard(true)
-                .oneTimeKeyboard(false)
-                .build();
-
+        return row;
     }
+
 }

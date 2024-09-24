@@ -16,18 +16,21 @@ import ua.com.telegramweatherbot.mapper.UserMapper;
 import ua.com.telegramweatherbot.model.dto.UserDto;
 import ua.com.telegramweatherbot.model.entity.UserEntity;
 import ua.com.telegramweatherbot.repository.UserRepository;
-import ua.com.telegramweatherbot.service.UserService;
+import ua.com.telegramweatherbot.service.UserInfoService;
+import ua.com.telegramweatherbot.service.UserManagementService;
+import ua.com.telegramweatherbot.service.UserSettingsService;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserManagementService, UserSettingsService, UserInfoService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
@@ -49,8 +52,6 @@ public class UserServiceImpl implements UserService {
 
         User userFromTg = update.getMessage().getFrom();
 
-        String units = "metric";
-
         if (userRepository.findByChatId(chatId).isPresent()) {
             throw new UserAlreadyExistsException("User with chatId " + chatId + " already exists");
         }
@@ -61,8 +62,6 @@ public class UserServiceImpl implements UserService {
                 .lastname(userFromTg.getLastName())
                 .username(userFromTg.getUserName())
                 .language(userFromTg.getLanguageCode())
-                .units(units)
-                .registeredAt(LocalDateTime.now())
                 .build();
 
         userRepository.save(user);
@@ -163,5 +162,43 @@ public class UserServiceImpl implements UserService {
                 .findByChatId(chatId)
                 .map(UserEntity::getUnits)
                 .orElse("metric");
+    }
+
+    @Override
+    public String getUserUnitsText(long chatId) {
+
+        String key = userRepository
+                .findByChatId(chatId)
+                .map(UserEntity::getUnits)
+                .orElse("metric");
+
+        return getUnitText(key);
+
+    }
+
+    private String getUnitText(String unit) {
+
+        switch (unit) {
+            case "standard" -> unit = "K";
+            case "metric" -> unit = "°C";
+            case "imperial" -> unit = "°F";
+        }
+
+        return unit;
+    }
+
+    @Transactional
+    @Override
+    public UserDto updateLastWeatherRequest(long chatId) {
+        return userRepository.findByChatId(chatId)
+                .map(e -> {
+                    e.setLastWeatherRequest(LocalDateTime.now());
+                    return userRepository.saveAndFlush(e);
+                })
+                .map(userMapper::toDto)
+                .orElseThrow(
+                        () -> new UserNotFoundException("User with chatId " + chatId + " not found")
+                );
+
     }
 }
