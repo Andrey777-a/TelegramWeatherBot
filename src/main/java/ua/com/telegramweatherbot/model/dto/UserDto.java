@@ -1,6 +1,7 @@
 package ua.com.telegramweatherbot.model.dto;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Value;
 
 import java.io.Serializable;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Value
+@Builder
 public class UserDto implements Serializable {
 
     @NotNull

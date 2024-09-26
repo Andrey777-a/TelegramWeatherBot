@@ -92,9 +92,20 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
     @Override
     public void changeLanguageLocalisation(long chatId, String lang) {
 
-        userSettingsService.changeLanguage(chatId, lang);
+        Optional<String> userLang = userManagementService
+                .findByChatId(chatId)
+                .map(UserDto::getLanguage);
 
-        messageService.sendMessage(chatId, "change.language");
+        if (userLang.isPresent() && userLang.get().equals(lang)) {
+
+            messageService.sendMessage(chatId, "no.change.language");
+
+        } else {
+
+            userSettingsService.changeLanguage(chatId, lang);
+
+            messageService.sendMessage(chatId, "change.language");
+        }
 
     }
 
@@ -110,9 +121,11 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
     @Override
     public void changeDefaultCity(long chatId, String city) {
 
-        Optional<UserDto> byChatId = userManagementService.findByChatId(chatId);
+        Optional<String> userCity = userManagementService
+                .findByChatId(chatId)
+                .map(UserDto::getCity);
 
-        if (Optional.ofNullable(byChatId.get().getCity()).equals(city.trim())) {
+        if (userCity.isPresent() && userCity.get().equals(city.trim())) {
 
             messageService.sendMessage(chatId, "no.change.default.city");
 
@@ -128,9 +141,11 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
     @Override
     public void changeDefaultUnits(long chatId, String units) {
 
-        Optional<UserDto> byChatId = userManagementService.findByChatId(chatId);
+        Optional<String> userUnit = userManagementService
+                .findByChatId(chatId)
+                .map(UserDto::getUnits);
 
-        if (Optional.ofNullable(byChatId.get().getUnits()).equals(units.trim())) {
+        if (userUnit.isPresent() && userUnit.get().equals(units.trim())) {
 
             messageService.sendMessage(chatId, "no.change.default.units");
 

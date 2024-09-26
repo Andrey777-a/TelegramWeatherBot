@@ -6,7 +6,7 @@ import java.time.LocalTime;
 
 public interface UserSettingsService {
 
-    UserDto changeCity(Long chatId, String city);
+    UserDto changeCity(long chatId, String city);
 
     UserDto changeLanguage(long chatId, String language);
 

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ua.com.telegramweatherbot.model.dto.CityResponse;
+import ua.com.telegramweatherbot.model.dto.UserDto;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
-import ua.com.telegramweatherbot.model.entity.UserEntity;
 import ua.com.telegramweatherbot.service.*;
 
 import java.time.LocalTime;
@@ -26,12 +26,13 @@ public class SchedulingServiceImpl implements SchedulingService {
     @Override
     public void sendWeatherNotification() {
 
-        List<UserEntity> all = userManagementService.findAll();
+        List<UserDto> all = userManagementService.findAll();
 
-        for (UserEntity user : all) {
+        for (UserDto user : all) {
 
             boolean hasCity = Optional.ofNullable(user.getCity()).isPresent();
-            boolean hasNotificationTime = Optional.ofNullable(user.getNotificationTime()).isPresent();
+            boolean hasNotificationTime =
+                    Optional.ofNullable(user.getNotificationTime()).isPresent();
 
             String userUnits = userInfoService.getUserUnits(user.getChatId());
 

@@ -23,21 +23,23 @@ import ua.com.telegramweatherbot.service.UserSettingsService;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class UserServiceImpl implements UserManagementService, UserSettingsService, UserInfoService {
+public class UserServiceImpl
+        implements UserManagementService, UserSettingsService, UserInfoService {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
     @Override
-    public List<UserEntity> findAll() {
-        return userRepository.findAll();
+    public List<UserDto> findAll() {
+        return userRepository.findAll().stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 
     @Caching(
@@ -77,6 +79,21 @@ public class UserServiceImpl implements UserManagementService, UserSettingsServi
     public Optional<UserDto> findByChatId(long chatId) {
         return userRepository.findByChatId(chatId)
                 .map(userMapper::toDto);
+
+    }
+
+    @Transactional
+    @Override
+    public UserDto updateLastWeatherRequest(long chatId) {
+        return userRepository.findByChatId(chatId)
+                .map(e -> {
+                    e.setLastWeatherRequest(LocalDateTime.now());
+                    return userRepository.saveAndFlush(e);
+                })
+                .map(userMapper::toDto)
+                .orElseThrow(
+                        () -> new UserNotFoundException("User with chatId " + chatId + " not found")
+                );
 
     }
 
@@ -135,7 +152,7 @@ public class UserServiceImpl implements UserManagementService, UserSettingsServi
     @CachePut(value = "UserService::findByChatId", key = "#chatId")
     @Transactional
     @Override
-    public UserDto changeCity(Long chatId, String city) {
+    public UserDto changeCity(long chatId, String city) {
         return userRepository.findByChatId(chatId)
                 .map(e -> {
                     e.setCity(city);
@@ -185,20 +202,5 @@ public class UserServiceImpl implements UserManagementService, UserSettingsServi
         }
 
         return unit;
-    }
-
-    @Transactional
-    @Override
-    public UserDto updateLastWeatherRequest(long chatId) {
-        return userRepository.findByChatId(chatId)
-                .map(e -> {
-                    e.setLastWeatherRequest(LocalDateTime.now());
-                    return userRepository.saveAndFlush(e);
-                })
-                .map(userMapper::toDto)
-                .orElseThrow(
-                        () -> new UserNotFoundException("User with chatId " + chatId + " not found")
-                );
-
     }
 }
