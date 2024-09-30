@@ -1,8 +1,8 @@
 spring:
-  config:
-    import: optional:file:.env[.properties]
   application:
     name: TelegramWeatherBot
+  config:
+    import: optional:file:.env[.properties]
   messages:
     basename: messages
     encoding: UTF-8
@@ -42,3 +42,13 @@ spring:
 #      path: /
 #    threshold:
 #      file: warn
+
+telegram:
+  name: ${BOT_NAME}
+  token: ${BOT_KEY}
+
+weather:
+  token: ${WEATHER_API_KEY}
+  base-url: ${BASE_WEATHER_URL}
+  weather-url: ${WEATHER_URL}
+  city-url: ${CITY_URL}

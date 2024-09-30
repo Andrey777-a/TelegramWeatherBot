@@ -2,6 +2,7 @@ package ua.com.telegramweatherbot.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -15,39 +16,39 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
 @Table(name = "users")
 public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @Column(name = "chat_id")
-    private long chatId;
+    long chatId;
 
-    private String firstname;
+    String firstname;
 
-    private String lastname;
+    String lastname;
 
-    private String username;
+    String username;
 
-    private String city;
+    String city;
 
-    private String language;
+    String language;
 
-    private String units;
+    String units;
 
     @CreatedDate
     @Column(name = "registered_at")
-    private LocalDateTime registeredAt;
+    LocalDateTime registeredAt;
 
     @Column(name = "last_weather_request")
-    private LocalDateTime lastWeatherRequest;
+    LocalDateTime lastWeatherRequest;
 
     @Column(name = "notification_time")
-    private LocalTime notificationTime;
-
+    LocalTime notificationTime;
 
     @PrePersist
     private void onUnits() {

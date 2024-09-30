@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.bot;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -17,13 +19,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
 @Service
 public class Button {
 
-    private final CityService cityService;
-    private final UserInfoService userInfoService;
-    private final LocalizationService localizationService;
+    CityService cityService;
+    UserInfoService userInfoService;
+    LocalizationService localizationService;
 
     public InlineKeyboardMarkup inlineMarkupLanguage(long chatId) {
 

@@ -1,8 +1,9 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClient;
+import ua.com.telegramweatherbot.config.WeatherProperties;
 import ua.com.telegramweatherbot.mapper.CityMapper;
 import ua.com.telegramweatherbot.model.dto.CityDto;
 import ua.com.telegramweatherbot.model.dto.CityResponse;
@@ -21,17 +23,16 @@ import java.util.List;
 import java.util.Objects;
 
 @Slf4j
+@Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CityServiceImpl implements CityService {
 
-    @Value("${WEATHER_API_KEY}")
-    private String apiKey;
-
-    private final RestClient restClient;
-    private final CityMapper cityMapper;
-    private final CityRepository cityRepository;
+    WeatherProperties weatherProperties;
+    RestClient restClient;
+    CityMapper cityMapper;
+    CityRepository cityRepository;
 
     @Cacheable(value = "CityService::findCitiesWithPagination",
             key = "{#page, #pageSize}", unless = "#result==null")
@@ -60,9 +61,9 @@ public class CityServiceImpl implements CityService {
         List<CityResponse> cityResponses = new ArrayList<>();
 
         List<CityResponse> city = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/geo/1.0/direct")
+                .uri(uriBuilder -> uriBuilder.path(weatherProperties.getCityUrl())
                         .queryParam("q", cityName)
-                        .queryParam("apiKey", apiKey)
+                        .queryParam("apiKey", weatherProperties.getToken())
                         .build())
                 .retrieve()
                 .body(new ParameterizedTypeReference<>() {});
@@ -82,9 +83,9 @@ public class CityServiceImpl implements CityService {
         for (String cityName : cityNames) {
 
             List<CityResponse> city = restClient.get()
-                    .uri(uriBuilder -> uriBuilder.path("/geo/1.0/direct")
+                    .uri(uriBuilder -> uriBuilder.path(weatherProperties.getCityUrl())
                             .queryParam("q", cityName)
-                            .queryParam("apiKey", apiKey)
+                            .queryParam("apiKey", weatherProperties.getToken())
                             .build())
                     .retrieve()
                     .body(new ParameterizedTypeReference<>() {

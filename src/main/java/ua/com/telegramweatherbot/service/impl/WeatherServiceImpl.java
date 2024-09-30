@@ -1,11 +1,13 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import ua.com.telegramweatherbot.config.WeatherProperties;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
 import ua.com.telegramweatherbot.service.UserInfoService;
 import ua.com.telegramweatherbot.service.WeatherService;
@@ -18,12 +20,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WeatherServiceImpl implements WeatherService {
 
-    @Value("${WEATHER_API_KEY}")
-    private final String apiKey;
-    private final RestClient restClient;
-    private final UserInfoService userInfoService;
+    WeatherProperties weatherProperties;
+    RestClient restClient;
+    UserInfoService userInfoService;
 
     @Cacheable(value = "WeatherService::getWeatherByCity", key = "{#lat, #lon, #chatId}")
     @Override
@@ -32,10 +34,10 @@ public class WeatherServiceImpl implements WeatherService {
         List<WeatherResponse> weatherResponses = new ArrayList<>();
 
         WeatherResponse body = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path("data/2.5/weather")
+                .uri(uriBuilder -> uriBuilder.path(weatherProperties.getWeatherUrl())
                         .queryParam("lat", lat)
                         .queryParam("lon", lon)
-                        .queryParam("apiKey", apiKey)
+                        .queryParam("apiKey", weatherProperties.getToken())
                         .queryParam("lang", userInfoService.getUserLanguage(chatId))
                         .queryParam("units", userInfoService.getUserUnits(chatId))
                         .build())
@@ -56,9 +58,9 @@ public class WeatherServiceImpl implements WeatherService {
         List<WeatherResponse> weatherResponses = new ArrayList<>();
 
         WeatherResponse body = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path("/data/2.5/weather")
+                .uri(uriBuilder -> uriBuilder.path(weatherProperties.getWeatherUrl())
                         .queryParam("q", city)
-                        .queryParam("apiKey", apiKey)
+                        .queryParam("apiKey", weatherProperties.getToken())
                         .queryParam("lang", userInfoService.getUserLanguage(chatId))
                         .queryParam("units", userInfoService.getUserUnits(chatId))
                         .build())

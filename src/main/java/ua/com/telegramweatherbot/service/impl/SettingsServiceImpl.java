@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ua.com.telegramweatherbot.bot.Button;
@@ -11,14 +13,15 @@ import java.time.LocalTime;
 import java.util.Optional;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SettingsServiceImpl implements SettingsShowService, SettingsChangeService {
 
-    private final UserSettingsService userSettingsService;
-    private final UserManagementService userManagementService;
-    private final MessageService messageService;
-    private final Button button;
+    UserSettingsService userSettingsService;
+    UserManagementService userManagementService;
+    MessageService messageService;
+    Button button;
 
     @Override
     public void showSettings(long chatId) {

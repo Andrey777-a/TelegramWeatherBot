@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import ua.com.telegramweatherbot.service.LocalizationService;
@@ -8,12 +10,13 @@ import ua.com.telegramweatherbot.service.UserInfoService;
 
 import java.util.Locale;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class LocalizationServiceImpl implements LocalizationService {
 
-    private final MessageSource messageSource;
-    private final UserInfoService userInfoService;
+    MessageSource messageSource;
+    UserInfoService userInfoService;
 
     @Override
     public String getMessageSource(String key, long chatId, Object... args) {

@@ -1,22 +1,21 @@
 package ua.com.telegramweatherbot.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
 @Getter
 @Table(name = "cities")
 public class CityEntity {
 
     @Id
-    private long id;
+    long id;
 
-    private String name;
+    String name;
 
 }

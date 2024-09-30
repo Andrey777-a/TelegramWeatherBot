@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ua.com.telegramweatherbot.bot.Button;
@@ -11,17 +13,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MessageHandlerServiceImpl implements MessageHandlerService {
 
-    private final UserManagementService userManagementService;
-    private final UserInfoService userInfoService;
-    private final WeatherService weatherService;
-    private final MessageService messageService;
-    private final SettingsShowService settingsShowService;
-    private final LocalizationService localizationService;
-    private final Button button;
+    UserManagementService userManagementService;
+    UserInfoService userInfoService;
+    WeatherService weatherService;
+    MessageService messageService;
+    SettingsShowService settingsShowService;
+    LocalizationService localizationService;
+    Button button;
 
     @Override
     public void handleMessage(Update update) {

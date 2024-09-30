@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -26,14 +28,15 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
+@Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceImpl
         implements UserManagementService, UserSettingsService, UserInfoService {
 
-    private final UserMapper userMapper;
-    private final UserRepository userRepository;
+    UserMapper userMapper;
+    UserRepository userRepository;
 
     @Override
     public List<UserDto> findAll() {

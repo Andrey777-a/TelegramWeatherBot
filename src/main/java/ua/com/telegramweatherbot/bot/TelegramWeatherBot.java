@@ -1,14 +1,16 @@
 package ua.com.telegramweatherbot.bot;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ua.com.telegramweatherbot.config.BotProperties;
 import ua.com.telegramweatherbot.service.CallbackQueryHandlerService;
 import ua.com.telegramweatherbot.service.MessageHandlerService;
 import ua.com.telegramweatherbot.service.impl.CallbackQueryHandlerServiceImpl;
@@ -16,20 +18,20 @@ import ua.com.telegramweatherbot.service.impl.MessageHandlerServiceImpl;
 
 @Slf4j
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TelegramWeatherBot extends TelegramLongPollingBot {
 
-    private final String botName;
-    private final MessageHandlerService messageHandlerService;
-    private final CallbackQueryHandlerService callbackQueryHandlerService;
+    BotProperties botProperties;
+    MessageHandlerService messageHandlerService;
+    CallbackQueryHandlerService callbackQueryHandlerService;
 
     public TelegramWeatherBot(
-            @Value("${BOT_KEY}") String botToken,
-            @Value("${BOT_NAME}") String botName,
+            BotProperties botProperties,
             MessageHandlerServiceImpl messageHandlerService,
             CallbackQueryHandlerServiceImpl callbackQueryHandlerService
     ) {
-        super(botToken);
-        this.botName = botName;
+        super(botProperties.getToken());
+        this.botProperties = botProperties;
         this.messageHandlerService = messageHandlerService;
         this.callbackQueryHandlerService = callbackQueryHandlerService;
 
@@ -51,7 +53,7 @@ public class TelegramWeatherBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return botName;
+        return botProperties.getName();
     }
 
     @Override

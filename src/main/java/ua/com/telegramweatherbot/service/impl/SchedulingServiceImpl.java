@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ua.com.telegramweatherbot.model.dto.CityResponse;
@@ -12,15 +14,16 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class SchedulingServiceImpl implements SchedulingService {
 
-    private final MessageService messageService;
-    private final UserManagementService userManagementService;
-    private final UserInfoService userInfoService;
-    private final WeatherService weatherService;
-    private final CityService cityService;
+    MessageService messageService;
+    UserManagementService userManagementService;
+    UserInfoService userInfoService;
+    WeatherService weatherService;
+    CityService cityService;
 
     @Scheduled(cron = "0 0 9-17 * * *")
     @Override

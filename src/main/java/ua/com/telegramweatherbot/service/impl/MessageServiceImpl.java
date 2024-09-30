@@ -1,5 +1,8 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -15,11 +18,12 @@ import ua.com.telegramweatherbot.service.MessageService;
 
 @Slf4j
 @Service
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class MessageServiceImpl implements MessageService {
 
-    private final TelegramWeatherBot botService;
-    private final LocalizationService localizationService;
-    private final Button button;
+    TelegramWeatherBot botService;
+    LocalizationService localizationService;
+    Button button;
 
     @Autowired
     public MessageServiceImpl(@Lazy TelegramWeatherBot botService,

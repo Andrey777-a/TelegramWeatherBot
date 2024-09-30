@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.controller;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 import ua.com.telegramweatherbot.model.dto.CityResponse;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
@@ -10,12 +12,13 @@ import ua.com.telegramweatherbot.service.impl.WeatherServiceImpl;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/weather")
 @RequiredArgsConstructor
+@RequestMapping("/api/v1/weather")
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WeatherRestController {
 
-    private final WeatherServiceImpl weatherService;
-    private final CityServiceImpl cityService;
+    WeatherServiceImpl weatherService;
+    CityServiceImpl cityService;
 
     @GetMapping("/{lat}&{lon}")
     public List<WeatherResponse> getCityLocation(@PathVariable double lat, @PathVariable double lon) {
@@ -31,7 +34,7 @@ public class WeatherRestController {
 
     }
 
-    @GetMapping("/city")
+    @GetMapping("/cities")
     public List<CityResponse> getCityList(@RequestParam List<String> city) {
 
         return cityService.getCityLocalisation(city);

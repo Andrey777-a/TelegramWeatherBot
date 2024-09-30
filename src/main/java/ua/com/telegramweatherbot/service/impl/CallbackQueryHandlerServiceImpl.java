@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.service.impl;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ua.com.telegramweatherbot.bot.Button;
@@ -12,18 +14,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CallbackQueryHandlerServiceImpl implements CallbackQueryHandlerService {
 
-    private final WeatherService weatherService;
-    private final UserInfoService userInfoService;
-    private final UserManagementService userManagementService;
-    private final CityService cityService;
-    private final MessageService messageService;
-    private final SettingsShowService settingsShowService;
-    private final SettingsChangeService settingsChangeService;
-    private final Button button;
+    WeatherService weatherService;
+    UserInfoService userInfoService;
+    UserManagementService userManagementService;
+    CityService cityService;
+    MessageService messageService;
+    SettingsShowService settingsShowService;
+    SettingsChangeService settingsChangeService;
+    Button button;
 
     @Override
     public void handleCallbackQuery(Update update) {
