@@ -37,7 +37,7 @@ public class WeatherRestController {
     @GetMapping("/cities")
     public List<CityResponse> getCityList(@RequestParam List<String> city) {
 
-        return cityService.getCityLocalisation(city);
+        return cityService.getCitiesLocalisation(city);
 
     }
 

@@ -32,16 +32,6 @@ spring:
         show_sql: true
         hbm2ddl.auto: validate
     open-in-view: false
-#logging:
-#  level:
-#    root: debug
-#    org.springframework.web: debug
-#      org.hibernate: ${LOG_LVL_HIBERNATE}
-#    file:
-#      name: log/app_log.log
-#      path: /
-#    threshold:
-#      file: warn
 
 telegram:
   name: ${BOT_NAME}

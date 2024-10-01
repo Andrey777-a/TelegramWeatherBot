@@ -5,12 +5,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Builder
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "cities")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CityEntity {
 
     @Id

@@ -76,7 +76,7 @@ public class CityServiceImpl implements CityService {
     }
 
     @Override
-    public List<CityResponse> getCityLocalisation(List<String> cityNames) {
+    public List<CityResponse> getCitiesLocalisation(List<String> cityNames) {
 
         List<CityResponse> cityResponses = new ArrayList<>();
 

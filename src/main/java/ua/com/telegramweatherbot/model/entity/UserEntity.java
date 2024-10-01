@@ -16,9 +16,9 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "users")
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "users")
 public class UserEntity {
 
     @Id

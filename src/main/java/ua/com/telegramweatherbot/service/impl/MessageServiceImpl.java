@@ -1,7 +1,6 @@
 package ua.com.telegramweatherbot.service.impl;
 
 import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +41,8 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void sendWeatherInfo(long chatId, String localNameCity, WeatherResponse weatherResponse,
+    public void sendWeatherInfo(long chatId, String localNameCity,
+                                WeatherResponse weatherResponse,
                                 String unit) {
 
         sendMessage(chatId, "weather", localNameCity,

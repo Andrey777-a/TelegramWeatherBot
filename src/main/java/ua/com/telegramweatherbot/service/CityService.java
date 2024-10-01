@@ -14,6 +14,6 @@ public interface CityService {
 
     List<CityResponse> getCity(String cityName);
 
-    List<CityResponse> getCityLocalisation(List<String> cityNames);
+    List<CityResponse> getCitiesLocalisation(List<String> cityNames);
 
 }
