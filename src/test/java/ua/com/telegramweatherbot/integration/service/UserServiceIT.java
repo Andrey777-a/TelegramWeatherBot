@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.integration.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.CacheManager;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -23,15 +25,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserServiceIT extends IntegrationTestBase {
 
-    private final static long CHAT_ID_EXISTS = 678228966L;
-    private final static long CHAT_ID_NOT_EXISTS = 1234567L;
+    static long CHAT_ID_EXISTS = 678228966L;
+    static long CHAT_ID_NOT_EXISTS = 1234567L;
 
-    private final UserManagementService userManagementService;
-    private final UserInfoService userInfoService;
-    private final UserSettingsService userSettingsService;
-    private final CacheManager cacheManager;
+    UserManagementService userManagementService;
+    UserInfoService userInfoService;
+    UserSettingsService userSettingsService;
+    CacheManager cacheManager;
 
     @Test
     public void findAll() {

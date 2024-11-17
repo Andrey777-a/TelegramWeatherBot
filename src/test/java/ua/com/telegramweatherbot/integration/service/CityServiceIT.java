@@ -1,6 +1,8 @@
 package ua.com.telegramweatherbot.integration.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.junit.jupiter.api.Test;
 import org.springframework.cache.CacheManager;
 import ua.com.telegramweatherbot.integration.IntegrationTestBase;
@@ -13,10 +15,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 class CityServiceIT extends IntegrationTestBase {
 
-    private final CityService cityService;
-    private final CacheManager cacheManager;
+    CityService cityService;
+    CacheManager cacheManager;
 
     @Test
     void findCitiesWithPagination_shouldReturnListCity() {

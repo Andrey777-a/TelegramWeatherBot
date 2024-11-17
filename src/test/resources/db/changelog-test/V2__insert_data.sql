@@ -27,5 +27,5 @@ VALUES (678228966, 'James', 'Smith', 'fine_boy',
         'London', 'en', 'metric', '2024-09-16 15:14:15.363025',
         null, '12:00:00'),
        (678228745, 'Edward', 'Johnson', 'shark',
-        'Toronto', 'en', 'metric', '2024-09-11 12:53:16.363025',
+        'Toronto', 'uk', 'metric', '2024-09-11 12:53:16.363025',
         null, '10:00:00');
