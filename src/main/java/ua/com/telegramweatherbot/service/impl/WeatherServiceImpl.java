@@ -27,19 +27,37 @@ public class WeatherServiceImpl implements WeatherService {
     RestClient restClient;
     UserInfoService userInfoService;
 
-    @Cacheable(value = "WeatherService::getWeatherByCity", key = "{#lat, #lon, #chatId}")
+    @Cacheable(
+            value = "WeatherService::getWeatherByCity",
+            key = "{#lat, #lon, #chatId}"
+    )
     @Override
-    public List<WeatherResponse> getWeatherByCoordinates(double lat, double lon, long chatId) {
+    public List<WeatherResponse> getWeatherByCoordinates(
+            double lat,
+            double lon,
+            long chatId
+    ) {
 
         List<WeatherResponse> weatherResponses = new ArrayList<>();
 
         WeatherResponse body = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path(weatherProperties.getWeatherUrl())
-                        .queryParam("lat", lat)
-                        .queryParam("lon", lon)
-                        .queryParam("apiKey", weatherProperties.getToken())
-                        .queryParam("lang", userInfoService.getUserLanguage(chatId))
-                        .queryParam("units", userInfoService.getUserUnits(chatId))
+                .uri(uriBuilder -> uriBuilder
+                        .path(weatherProperties.getWeatherUrl())
+                        .queryParam(
+                                "lat", lat
+                        )
+                        .queryParam(
+                                "lon", lon
+                        )
+                        .queryParam(
+                                "apiKey", weatherProperties.getToken()
+                        )
+                        .queryParam(
+                                "lang", userInfoService.getUserLanguage(chatId)
+                        )
+                        .queryParam(
+                                "units", userInfoService.getUserUnits(chatId)
+                        )
                         .build())
                 .retrieve()
                 .body(WeatherResponse.class);
@@ -51,18 +69,33 @@ public class WeatherServiceImpl implements WeatherService {
         return weatherResponses;
     }
 
-    @Cacheable(value = "WeatherService::getWeatherByCity", key = "{#city, #chatId}")
+    @Cacheable(
+            value = "WeatherService::getWeatherByCity",
+            key = "{#city, #chatId}"
+    )
     @Override
-    public List<WeatherResponse> getWeatherByCity(String city, long chatId) {
+    public List<WeatherResponse> getWeatherByCity(
+            String city,
+            long chatId
+    ) {
 
         List<WeatherResponse> weatherResponses = new ArrayList<>();
 
         WeatherResponse body = restClient.get()
-                .uri(uriBuilder -> uriBuilder.path(weatherProperties.getWeatherUrl())
-                        .queryParam("q", city)
-                        .queryParam("apiKey", weatherProperties.getToken())
-                        .queryParam("lang", userInfoService.getUserLanguage(chatId))
-                        .queryParam("units", userInfoService.getUserUnits(chatId))
+                .uri(uriBuilder -> uriBuilder
+                        .path(weatherProperties.getWeatherUrl())
+                        .queryParam(
+                                "q", city
+                        )
+                        .queryParam(
+                                "apiKey", weatherProperties.getToken()
+                        )
+                        .queryParam(
+                                "lang", userInfoService.getUserLanguage(chatId)
+                        )
+                        .queryParam(
+                                "units", userInfoService.getUserUnits(chatId)
+                        )
                         .build())
                 .accept(APPLICATION_JSON)
                 .retrieve()

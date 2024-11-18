@@ -37,6 +37,10 @@ telegram:
   name: ${BOT_NAME}
   token: ${BOT_KEY}
 
+scheduler:
+  cron:
+    expression: ${CRON_EXPRESSION}
+
 weather:
   token: ${WEATHER_API_KEY}
   base-url: ${BASE_WEATHER_URL}

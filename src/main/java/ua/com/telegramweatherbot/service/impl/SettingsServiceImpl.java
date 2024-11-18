@@ -16,7 +16,9 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class SettingsServiceImpl implements SettingsShowService, SettingsChangeService {
+public class SettingsServiceImpl implements
+        SettingsShowService,
+        SettingsChangeService {
 
     UserSettingsService userSettingsService;
     UserManagementService userManagementService;
@@ -24,7 +26,9 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
     Button button;
 
     @Override
-    public void showSettings(long chatId) {
+    public void showSettings(
+            long chatId
+    ) {
 
         messageService.sendMessage(
                 chatId,
@@ -35,9 +39,12 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
     }
 
     @Override
-    public void showLanguageOptions(long chatId) {
+    public void showLanguageOptions(
+            long chatId
+    ) {
 
-        messageService.sendMessage(chatId,
+        messageService.sendMessage(
+                chatId,
                 "show.language.options",
                 button.inlineMarkupLanguage(chatId)
         );
@@ -45,21 +52,32 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
     }
 
     @Override
-    public void showUnitsOptions(long chatId) {
+    public void showUnitsOptions(
+            long chatId
+    ) {
 
-        messageService.sendMessage(chatId, "show.units.options",
-                button.inlineKeyboardMetric(chatId));
+        messageService.sendMessage(
+                chatId,
+                "show.units.options",
+                button.inlineKeyboardMetric(chatId)
+        );
 
     }
 
     @Override
-    public void showTimeForNotifications(long chatId) {
+    public void showTimeForNotifications(
+            long chatId
+    ) {
 
-        Optional<UserDto> byChatId = userManagementService.findByChatId(chatId);
+        Optional<UserDto> byChatId =
+                userManagementService.findByChatId(chatId);
 
         if (Optional.ofNullable(byChatId.get().getCity()).isEmpty()) {
 
-            showChangeCityOptions(chatId, true);
+            showChangeCityOptions(
+                    chatId,
+                    true
+            );
 
         }
 
@@ -68,32 +86,51 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
     }
 
     @Override
-    public void showChangeCityOptions(long chatId, boolean isForNotification) {
+    public void showChangeCityOptions(
+            long chatId,
+            boolean isForNotification
+    ) {
 
         Optional<UserDto> byChatId = userManagementService.findByChatId(chatId);
 
         if (Optional.ofNullable(byChatId.get().getCity()).isEmpty()) {
-            messageService.sendMessage(chatId,
-                    "default.city.no");
+            messageService.sendMessage(
+                    chatId,
+                    "default.city.no"
+            );
 
-            messageService.sendMessage(chatId,
+            messageService.sendMessage(
+                    chatId,
                     "show.options.change.city",
-                    button.inlineMarkupAllCity(1, 5, chatId, isForNotification));
+                    button.inlineMarkupAllCity(
+                            1, 5, chatId, isForNotification
+                    )
+            );
 
         } else {
 
-            messageService.sendMessage(chatId,
-                    "default.city.yes", byChatId.get().getCity());
+            messageService.sendMessage(
+                    chatId,
+                    "default.city.yes",
+                    byChatId.get().getCity()
+            );
 
-            messageService.sendMessage(chatId,
+            messageService.sendMessage(
+                    chatId,
                     "show.options.change.city",
-                    button.inlineMarkupAllCity(1, 5, chatId, isForNotification));
+                    button.inlineMarkupAllCity(
+                            1, 5, chatId, isForNotification
+                    )
+            );
         }
 
     }
 
     @Override
-    public void changeLanguageLocalisation(long chatId, String lang) {
+    public void changeLanguageLocalisation(
+            long chatId,
+            String lang
+    ) {
 
         Optional<String> userLang = userManagementService
                 .findByChatId(chatId)
@@ -101,28 +138,49 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
 
         if (userLang.isPresent() && userLang.get().equals(lang)) {
 
-            messageService.sendMessage(chatId, "no.change.language");
+            messageService.sendMessage(
+                    chatId,
+                    "no.change.language"
+            );
 
         } else {
 
-            userSettingsService.changeLanguage(chatId, lang);
+            userSettingsService.changeLanguage(
+                    chatId,
+                    lang
+            );
 
-            messageService.sendMessage(chatId, "change.language");
+            messageService.sendMessage(
+                    chatId,
+                    "change.language"
+            );
         }
 
     }
 
     @Override
-    public void changeTimeNotification(long chatId, String time) {
+    public void changeTimeNotification(
+            long chatId,
+            String time
+    ) {
 
-        userSettingsService.changeTimeNotification(chatId, LocalTime.parse(time));
+        userSettingsService.changeTimeNotification(
+                chatId,
+                LocalTime.parse(time)
+        );
 
-        messageService.sendMessage(chatId, "change.time.notification");
+        messageService.sendMessage(
+                chatId,
+                "change.time.notification"
+        );
 
     }
 
     @Override
-    public void changeDefaultCity(long chatId, String city) {
+    public void changeDefaultCity(
+            long chatId,
+            String city
+    ) {
 
         Optional<String> userCity = userManagementService
                 .findByChatId(chatId)
@@ -130,19 +188,31 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
 
         if (userCity.isPresent() && userCity.get().equals(city.trim())) {
 
-            messageService.sendMessage(chatId, "no.change.default.city");
+            messageService.sendMessage(
+                    chatId,
+                    "no.change.default.city"
+            );
 
         } else {
 
-            userSettingsService.changeCity(chatId, city);
+            userSettingsService.changeCity(
+                    chatId,
+                    city
+            );
 
-            messageService.sendMessage(chatId, "change.default.city");
+            messageService.sendMessage(
+                    chatId,
+                    "change.default.city"
+            );
 
         }
     }
 
     @Override
-    public void changeDefaultUnits(long chatId, String units) {
+    public void changeDefaultUnits(
+            long chatId,
+            String units
+    ) {
 
         Optional<String> userUnit = userManagementService
                 .findByChatId(chatId)
@@ -150,21 +220,35 @@ public class SettingsServiceImpl implements SettingsShowService, SettingsChangeS
 
         if (userUnit.isPresent() && userUnit.get().equals(units.trim())) {
 
-            messageService.sendMessage(chatId, "no.change.default.units");
+            messageService.sendMessage(
+                    chatId,
+                    "no.change.default.units"
+            );
 
         } else {
 
-            userSettingsService.changeUnits(chatId, units);
+            userSettingsService.changeUnits(
+                    chatId,
+                    units
+            );
 
-            messageService.sendMessage(chatId, "change.default.units");
+            messageService.sendMessage(
+                    chatId,
+                    "change.default.units"
+            );
 
         }
     }
 
-    private void showTimeOptions(long chatId) {
+    private void showTimeOptions(
+            long chatId
+    ) {
 
-        messageService.sendMessage(chatId, "show.time.options",
-                button.inlineTimeKeyboard());
+        messageService.sendMessage(
+                chatId,
+                "show.time.options",
+                button.inlineTimeKeyboard()
+        );
 
     }
 

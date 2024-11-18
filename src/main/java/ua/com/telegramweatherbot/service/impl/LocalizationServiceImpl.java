@@ -19,7 +19,11 @@ public class LocalizationServiceImpl implements LocalizationService {
     UserInfoService userInfoService;
 
     @Override
-    public String getMessageSource(String key, long chatId, Object... args) {
+    public String getMessageSource(
+            String key,
+            long chatId,
+            Object... args
+    ) {
 
         return messageSource.getMessage(
                 key,
@@ -30,7 +34,10 @@ public class LocalizationServiceImpl implements LocalizationService {
     }
 
     @Override
-    public String getLocalizedButtonText(String key, long chatId) {
+    public String getLocalizedButtonText(
+            String key,
+            long chatId
+    ) {
 
         return messageSource.getMessage(
                 key,

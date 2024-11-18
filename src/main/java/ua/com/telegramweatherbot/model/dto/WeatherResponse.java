@@ -82,7 +82,7 @@ public class WeatherResponse implements Serializable {
 
         @JsonProperty("speed")
         private double speed;
-        ;
+
     }
 
     @ToString

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import ua.com.telegramweatherbot.config.SchedulerProperties;
 import ua.com.telegramweatherbot.model.dto.CityResponse;
 import ua.com.telegramweatherbot.model.dto.UserDto;
 import ua.com.telegramweatherbot.model.dto.WeatherResponse;
@@ -24,8 +25,9 @@ public class SchedulingServiceImpl implements SchedulingService {
     UserInfoService userInfoService;
     WeatherService weatherService;
     CityService cityService;
+    SchedulerProperties schedulerProperties;
 
-    @Scheduled(cron = "0 0 9-17 * * *")
+    @Scheduled(cron = "#{@schedulerProperties.expression}")
     @Override
     public void sendWeatherNotification() {
 
@@ -33,30 +35,46 @@ public class SchedulingServiceImpl implements SchedulingService {
 
         for (UserDto user : all) {
 
-            boolean hasCity = Optional.ofNullable(user.getCity()).isPresent();
+            boolean hasCity =
+                    Optional.ofNullable(user.getCity())
+                            .isPresent();
             boolean hasNotificationTime =
-                    Optional.ofNullable(user.getNotificationTime()).isPresent();
+                    Optional.ofNullable(user.getNotificationTime())
+                            .isPresent();
 
-            String userUnits = userInfoService.getUserUnits(user.getChatId());
+            String userUnits = userInfoService
+                    .getUserUnits(
+                            user.getChatId()
+                    );
 
             if (hasCity && hasNotificationTime) {
 
-                boolean time = LocalTime.now().getHour() == user.getNotificationTime().getHour();
+                boolean time = LocalTime.now().getHour()
+                        == user.getNotificationTime().getHour();
 
                 if (time) {
 
                     List<WeatherResponse> weatherByCity = weatherService
-                            .getWeatherByCity(user.getCity(), user.getChatId());
+                            .getWeatherByCity(
+                                    user.getCity(),
+                                    user.getChatId()
+                            );
 
-                    List<CityResponse> localisation = cityService.getCity(user.getCity());
+                    List<CityResponse> localisation = cityService
+                            .getCity(
+                                    user.getCity()
+                            );
 
-                    String localNameCity = localisation.getFirst()
+                    String localNameCity = localisation
+                            .getFirst()
                             .getLocalNameList()
                             .get(user.getLanguage());
 
                     messageService.sendWeatherInfo(
                             user.getChatId(),
-                            localNameCity, weatherByCity.getFirst(), userUnits
+                            localNameCity,
+                            weatherByCity.getFirst(),
+                            userUnits
                     );
 
                 }

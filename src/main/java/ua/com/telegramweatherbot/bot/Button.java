@@ -22,24 +22,27 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class Button {
+public final class Button {
 
     CityService cityService;
     UserInfoService userInfoService;
     LocalizationService localizationService;
 
-    public InlineKeyboardMarkup inlineMarkupLanguage(long chatId) {
+    public InlineKeyboardMarkup inlineMarkupLanguage(
+            long chatId
+    ) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
-        List<InlineKeyboardButton> inlineKeyboardButtons = inlineKeyboardButtons(
-                chatId,
-                Map.of(
-                        "button.language.ru", "language_ru",
-                        "button.language.uk", "language_uk",
-                        "button.language.en", "language_en"
-                )
-        );
+        List<InlineKeyboardButton> inlineKeyboardButtons =
+                inlineKeyboardButtons(
+                        chatId,
+                        Map.of(
+                                "button.language.ru", "language_ru",
+                                "button.language.uk", "language_uk",
+                                "button.language.en", "language_en"
+                        )
+                );
 
         buttons.add(inlineKeyboardButtons);
 
@@ -48,18 +51,21 @@ public class Button {
                 .build();
     }
 
-    public InlineKeyboardMarkup inlineKeyboardMetric(long chatId) {
+    public InlineKeyboardMarkup inlineKeyboardMetric(
+            long chatId
+    ) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
-        List<InlineKeyboardButton> inlineKeyboardButtons = inlineKeyboardButtons(
-                chatId,
-                Map.of(
-                        "button.unit.standard", "units_standard",
-                        "button.unit.metric", "units_metric",
-                        "button.unit.imperial", "units_imperial"
-                )
-        );
+        List<InlineKeyboardButton> inlineKeyboardButtons =
+                inlineKeyboardButtons(
+                        chatId,
+                        Map.of(
+                                "button.unit.standard", "units_standard",
+                                "button.unit.metric", "units_metric",
+                                "button.unit.imperial", "units_imperial"
+                        )
+                );
 
         buttons.add(inlineKeyboardButtons);
 
@@ -68,19 +74,22 @@ public class Button {
                 .build();
     }
 
-    public InlineKeyboardMarkup inlineKeyboardSettings(long chatId) {
+    public InlineKeyboardMarkup inlineKeyboardSettings(
+            long chatId
+    ) {
 
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
 
-        List<InlineKeyboardButton> inlineKeyboardButtons = inlineKeyboardButtons(
-                chatId,
-                Map.of(
-                        "button.language", "lang",
-                        "button.time.notification", "time_notification",
-                        "button.default.city", "default_city",
-                        "button.units", "default_units"
-                )
-        );
+        List<InlineKeyboardButton> inlineKeyboardButtons =
+                inlineKeyboardButtons(
+                        chatId,
+                        Map.of(
+                                "button.language", "lang",
+                                "button.time.notification", "time_notification",
+                                "button.default.city", "default_city",
+                                "button.units", "default_units"
+                        )
+                );
 
         buttons.add(inlineKeyboardButtons);
 
@@ -111,14 +120,18 @@ public class Button {
                 .build();
     }
 
-    public InlineKeyboardMarkup inlineMarkupAllCity(int page,
-                                                    int pageSize,
-                                                    long chatId,
-                                                    boolean isForNotification) {
+    public InlineKeyboardMarkup inlineMarkupAllCity(
+            int page,
+            int pageSize,
+            long chatId,
+            boolean isForNotification
+    ) {
 
         int totalCities = cityService.countCities();
 
-        List<CityDto> cities = cityService.findCitiesWithPagination(page, pageSize);
+        List<CityDto> cities = cityService.findCitiesWithPagination(
+                page, pageSize
+        );
 
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
@@ -130,11 +143,13 @@ public class Button {
                     .getLocalNameList()
                     .get(userInfoService.getUserLanguage(chatId));
 
-            InlineKeyboardButton button = new InlineKeyboardButton(localNameCity);
+            InlineKeyboardButton button = new InlineKeyboardButton(
+                    localNameCity
+            );
 
-            String callBackData = isForNotification ?
-                    "change_" + localNameCity :
-                    "city_" + localNameCity;
+            String callBackData = isForNotification
+                    ? "change_" + localNameCity
+                    : "city_" + localNameCity;
 
             button.setCallbackData(callBackData.trim());
 
@@ -177,9 +192,10 @@ public class Button {
 
     }
 
-    private List<InlineKeyboardButton> getInlineKeyboardButtons(int page,
-                                                                int pageSize,
-                                                                int totalCities) {
+    private List<InlineKeyboardButton> getInlineKeyboardButtons(
+            int page,
+            int pageSize,
+            int totalCities) {
 
         int totalPages = (int) Math.ceil((double) totalCities / pageSize);
 
@@ -187,7 +203,8 @@ public class Button {
 
         if (page > 1) {
 
-            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            InlineKeyboardButton inlineKeyboardButton
+                    = new InlineKeyboardButton();
             inlineKeyboardButton.setText("⬅");
             inlineKeyboardButton.setCallbackData("page_" + (page - 1));
             navigationRow.add(inlineKeyboardButton);
@@ -196,7 +213,8 @@ public class Button {
 
         if (page < totalPages) {
 
-            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            InlineKeyboardButton inlineKeyboardButton
+                    = new InlineKeyboardButton();
             inlineKeyboardButton.setText("➡");
             inlineKeyboardButton.setCallbackData("page_" + (page + 1));
             navigationRow.add(inlineKeyboardButton);
@@ -206,15 +224,19 @@ public class Button {
         return navigationRow;
     }
 
-    private List<InlineKeyboardButton> inlineKeyboardButtons(long chatId,
-                                                             Map<String, String> buttons) {
+    private List<InlineKeyboardButton> inlineKeyboardButtons(
+            long chatId,
+            Map<String, String> buttons
+    ) {
 
         List<InlineKeyboardButton> row = new ArrayList<>();
 
         for (Map.Entry<String, String> entry : buttons.entrySet()) {
 
             InlineKeyboardButton button = new InlineKeyboardButton(
-                    localizationService.getLocalizedButtonText(entry.getKey(), chatId)
+                    localizationService.getLocalizedButtonText(
+                            entry.getKey(), chatId
+                    )
             );
 
             button.setCallbackData(entry.getValue().trim());
@@ -227,8 +249,10 @@ public class Button {
 
     }
 
-    private KeyboardRow replyKeyboardMarkups(long chatId,
-                                             List<String> buttons) {
+    private KeyboardRow replyKeyboardMarkups(
+            long chatId,
+            List<String> buttons
+    ) {
 
         KeyboardRow row = new KeyboardRow();
 

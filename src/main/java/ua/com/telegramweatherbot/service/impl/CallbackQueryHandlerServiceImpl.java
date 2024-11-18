@@ -17,7 +17,8 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class CallbackQueryHandlerServiceImpl implements CallbackQueryHandlerService {
+public class CallbackQueryHandlerServiceImpl
+        implements CallbackQueryHandlerService {
 
     WeatherService weatherService;
     UserInfoService userInfoService;
@@ -29,7 +30,9 @@ public class CallbackQueryHandlerServiceImpl implements CallbackQueryHandlerServ
     Button button;
 
     @Override
-    public void handleCallbackQuery(Update update) {
+    public void handleCallbackQuery(
+            Update update
+    ) {
 
         String callbackData = update.getCallbackQuery().getData();
 
@@ -45,7 +48,9 @@ public class CallbackQueryHandlerServiceImpl implements CallbackQueryHandlerServ
 
     }
 
-    private Map<String, Runnable> getStringRunnableMap(long chatId) {
+    private Map<String, Runnable> getStringRunnableMap(
+            long chatId
+    ) {
 
         Map<String, Runnable> commandActions = new HashMap<>();
 
@@ -69,60 +74,108 @@ public class CallbackQueryHandlerServiceImpl implements CallbackQueryHandlerServ
         return commandActions;
     }
 
-    private void handleComplexCallback(long chatId, String callbackData) {
+    private void handleComplexCallback(
+            long chatId,
+            String callbackData
+    ) {
 
         if (callbackData.startsWith("city_")) {
 
-            handleWeatherRequest(chatId, callbackData.split("_")[1]);
+            handleWeatherRequest(
+                    chatId,
+                    callbackData.split("_")[1]
+            );
 
         } else if (callbackData.startsWith("page_")) {
 
             int page = Integer.parseInt(callbackData.split("_")[1]);
 
-            handlePage(chatId, page, 5, false);
+            handlePage(
+                    chatId,
+                    page,
+                    5,
+                    false
+            );
 
         } else if (callbackData.startsWith("language_")) {
 
-            settingsChangeService.changeLanguageLocalisation(chatId, callbackData.split("_")[1]);
+            settingsChangeService.changeLanguageLocalisation(
+                    chatId,
+                    callbackData.split("_")[1]
+            );
 
         } else if (callbackData.startsWith("change_")) {
 
-            settingsChangeService.changeDefaultCity(chatId, callbackData.split("_")[1]);
+            settingsChangeService.changeDefaultCity(
+                    chatId,
+                    callbackData.split("_")[1]
+            );
 
         } else if (callbackData.startsWith("units_")) {
 
-            settingsChangeService.changeDefaultUnits(chatId, callbackData.split("_")[1]);
+            settingsChangeService.changeDefaultUnits(
+                    chatId,
+                    callbackData.split("_")[1]
+            );
 
         } else if (callbackData.matches("^([0][9]|[1][0-7]):[0-5][0-9]$")) {
 
-            settingsChangeService.changeTimeNotification(chatId, callbackData);
+            settingsChangeService.changeTimeNotification(
+                    chatId,
+                    callbackData
+            );
 
         }
     }
 
-    private void handleWeatherRequest(long chatId, String city) {
+    private void handleWeatherRequest(
+            long chatId,
+            String city
+    ) {
 
         WeatherResponse weatherResponse = weatherService
-                .getWeatherByCity(city, chatId).getFirst();
+                .getWeatherByCity(city, chatId)
+                .getFirst();
 
         List<CityResponse> localisation = cityService.getCity(city);
 
-        String language = userManagementService.findByChatId(chatId).get().getLanguage();
+        String language = userManagementService
+                .findByChatId(chatId)
+                .get()
+                .getLanguage();
 
-        String localNameCity = localisation.getFirst().getLocalNameList().get(language);
+        String localNameCity = localisation
+                .getFirst()
+                .getLocalNameList()
+                .get(language);
 
         userManagementService.updateLastWeatherRequest(chatId);
 
         String unit = userInfoService.getUserUnitsText(chatId);
 
-        messageService.sendWeatherInfo(chatId, localNameCity, weatherResponse, unit);
+        messageService.sendWeatherInfo(
+                chatId,
+                localNameCity,
+                weatherResponse,
+                unit
+        );
 
     }
 
-    private void handlePage(long chatId, int page, int pageSize, boolean isForNotification) {
+    private void handlePage(
+            long chatId,
+            int page,
+            int pageSize,
+            boolean isForNotification
+    ) {
 
-        messageService.sendMessage(chatId, "show.options.change.city",
-                button.inlineMarkupAllCity(page, pageSize, chatId, isForNotification));
+        messageService.sendMessage(
+                chatId,
+                "show.options.change.city",
+                button.inlineMarkupAllCity(
+                        page, pageSize, chatId, isForNotification
+                )
+        );
 
     }
 

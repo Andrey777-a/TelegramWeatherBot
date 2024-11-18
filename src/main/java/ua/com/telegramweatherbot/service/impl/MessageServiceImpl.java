@@ -25,45 +25,72 @@ public class MessageServiceImpl implements MessageService {
     Button button;
 
     @Autowired
-    public MessageServiceImpl(@Lazy TelegramWeatherBot botService,
-                              LocalizationService localizationService,
-                              Button button) {
+    public MessageServiceImpl(
+            @Lazy TelegramWeatherBot botService,
+            LocalizationService localizationService,
+            Button button
+    ) {
         this.botService = botService;
         this.localizationService = localizationService;
         this.button = button;
     }
 
     @Override
-    public void sendUnknownCommandMessage(long chatId) {
+    public void sendUnknownCommandMessage(
+            long chatId
+    ) {
 
         sendMessage(chatId, "unknown.command");
 
     }
 
     @Override
-    public void sendWeatherInfo(long chatId, String localNameCity,
-                                WeatherResponse weatherResponse,
-                                String unit) {
+    public void sendWeatherInfo(
+            long chatId,
+            String localNameCity,
+            WeatherResponse weatherResponse,
+            String unit
+    ) {
 
-        sendMessage(chatId, "weather", localNameCity,
+        sendMessage(
+                chatId,
+                "weather",
+                localNameCity,
                 weatherResponse.getMain().getTemp(),
                 unit,
-                weatherResponse.getWeather().getFirst().getDescription());
+                weatherResponse.getWeather().getFirst().getDescription()
+        );
     }
 
     @Override
-    public void sendWeatherInfo(long chatId, WeatherResponse weatherResponse, String unit) {
+    public void sendWeatherInfo(
+            long chatId,
+            WeatherResponse weatherResponse,
+            String unit
+    ) {
 
-        sendMessage(chatId, "weather.location",
+        sendMessage(
+                chatId,
+                "weather.location",
                 weatherResponse.getMain().getTemp(),
                 unit,
-                weatherResponse.getWeather().getFirst().getDescription());
+                weatherResponse.getWeather().getFirst().getDescription()
+        );
     }
 
     @Override
-    public void sendMessage(long chatId, String key, Object... args) {
+    public void sendMessage(
+            long chatId,
+            String key,
+            Object... args
+    ) {
 
-        String localMessage = localizationService.getMessageSource(key, chatId, args);
+        String localMessage = localizationService
+                .getMessageSource(
+                        key,
+                        chatId,
+                        args
+                );
 
         SendMessage build = SendMessage.builder()
                 .chatId(chatId)
@@ -83,9 +110,16 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void sendMessage(long chatId, String key, ReplyKeyboard replyKeyboard) {
+    public void sendMessage(
+            long chatId,
+            String key,
+            ReplyKeyboard replyKeyboard
+    ) {
 
-        String localMessage = localizationService.getMessageSource(key, chatId);
+        String localMessage = localizationService
+                .getMessageSource(
+                        key, chatId
+                );
 
         SendMessage build = SendMessage.builder()
                 .chatId(chatId)

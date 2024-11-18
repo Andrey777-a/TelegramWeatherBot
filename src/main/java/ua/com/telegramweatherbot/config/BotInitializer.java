@@ -12,9 +12,11 @@ public class BotInitializer {
 
     @SneakyThrows
     @Bean
-    public TelegramBotsApi init(TelegramWeatherBot bot){
+    public TelegramBotsApi init(TelegramWeatherBot bot) {
 
-        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+        TelegramBotsApi telegramBotsApi = new TelegramBotsApi(
+                DefaultBotSession.class
+        );
 
         telegramBotsApi.registerBot(bot);
 

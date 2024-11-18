@@ -15,27 +15,34 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/weather")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class WeatherRestController {
+public final class WeatherRestController {
 
     WeatherServiceImpl weatherService;
     CityServiceImpl cityService;
 
     @GetMapping("/{lat}&{lon}")
-    public List<WeatherResponse> getCityLocation(@PathVariable double lat, @PathVariable double lon) {
+    public List<WeatherResponse> getCityLocation(
+            @PathVariable double lat,
+            @PathVariable double lon
+    ) {
 
         return weatherService.getWeatherByCoordinates(lat, lon, 0);
 
     }
 
     @GetMapping()
-    public List<WeatherResponse> getCity(@RequestParam String city) {
+    public List<WeatherResponse> getCity(
+            @RequestParam String city
+    ) {
 
         return weatherService.getWeatherByCity(city, 0);
 
     }
 
     @GetMapping("/cities")
-    public List<CityResponse> getCityList(@RequestParam List<String> city) {
+    public List<CityResponse> getCityList(
+            @RequestParam List<String> city
+    ) {
 
         return cityService.getCitiesLocalisation(city);
 

@@ -32,8 +32,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UserServiceImpl
-        implements UserManagementService, UserSettingsService, UserInfoService {
+public class UserServiceImpl implements
+        UserManagementService,
+        UserSettingsService,
+        UserInfoService {
 
     UserMapper userMapper;
     UserRepository userRepository;
@@ -46,19 +48,29 @@ public class UserServiceImpl
     }
 
     @Caching(
-            put = @CachePut(value = "UserService::findByChatId", key = "#result.chatId"),
-            evict = @CacheEvict(value = "UserService::getUserLanguage", key = "#result.chatId")
+            put = @CachePut(
+                    value = "UserService::findByChatId",
+                    key = "#result.chatId"
+            ),
+            evict = @CacheEvict(
+                    value = "UserService::getUserLanguage",
+                    key = "#result.chatId"
+            )
     )
     @Transactional
     @Override
-    public UserDto createUser(Update update) {
+    public UserDto createUser(
+            Update update
+    ) {
 
         long chatId = update.getMessage().getChatId();
 
         User userFromTg = update.getMessage().getFrom();
 
         if (userRepository.findByChatId(chatId).isPresent()) {
-            throw new UserAlreadyExistsException("User with chatId " + chatId + " already exists");
+            throw new UserAlreadyExistsException(
+                    "User with chatId " + chatId + " already exists"
+            );
         }
 
         UserEntity user = UserEntity.builder()
@@ -77,9 +89,14 @@ public class UserServiceImpl
         return userMapper.toDto(user);
     }
 
-    @Cacheable(value = "UserService::findByChatId", key = "#chatId", unless = "#result==null")
+    @Cacheable(
+            value = "UserService::findByChatId",
+            key = "#chatId",
+            unless = "#result==null")
     @Override
-    public Optional<UserDto> findByChatId(long chatId) {
+    public Optional<UserDto> findByChatId(
+            long chatId
+    ) {
         return userRepository.findByChatId(chatId)
                 .map(userMapper::toDto);
 
@@ -87,7 +104,9 @@ public class UserServiceImpl
 
     @Transactional
     @Override
-    public UserDto updateLastWeatherRequest(long chatId) {
+    public UserDto updateLastWeatherRequest(
+            long chatId
+    ) {
         return userRepository.findByChatId(chatId)
                 .map(e -> {
                     e.setLastWeatherRequest(LocalDateTime.now());
@@ -95,17 +114,28 @@ public class UserServiceImpl
                 })
                 .map(userMapper::toDto)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User with chatId " + chatId + " not found")
+                        () -> new UserNotFoundException(
+                                "User with chatId " + chatId + " not found"
+                        )
                 );
 
     }
 
     @Caching(
-            put = @CachePut(value = "UserService::findByChatId", key = "#chatId"),
-            evict = @CacheEvict(value = "UserService::getUserLanguage", key = "#chatId")
+            put = @CachePut(
+                    value = "UserService::findByChatId",
+                    key = "#chatId"
+            ),
+            evict = @CacheEvict(
+                    value = "UserService::getUserLanguage",
+                    key = "#chatId"
+            )
     )
     @Transactional
-    public UserDto changeLanguage(long chatId, String language) {
+    public UserDto changeLanguage(
+            long chatId,
+            String language
+    ) {
 
         return userRepository.findByChatId(chatId)
                 .map(e -> {
@@ -114,17 +144,28 @@ public class UserServiceImpl
                 })
                 .map(userMapper::toDto)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User with chatId " + chatId + " not found")
+                        () -> new UserNotFoundException(
+                                "User with chatId " + chatId + " not found"
+                        )
                 );
     }
 
     @Caching(
-            put = @CachePut(value = "UserService::findByChatId", key = "#chatId"),
-            evict = @CacheEvict(value = "UserService::getUserUnits", key = "#chatId")
+            put = @CachePut(
+                    value = "UserService::findByChatId",
+                    key = "#chatId"
+            ),
+            evict = @CacheEvict(
+                    value = "UserService::getUserUnits",
+                    key = "#chatId"
+            )
     )
     @Transactional
     @Override
-    public UserDto changeUnits(long chatId, String units) {
+    public UserDto changeUnits(
+            long chatId,
+            String units
+    ) {
 
         return userRepository.findByChatId(chatId)
                 .map(e -> {
@@ -133,14 +174,22 @@ public class UserServiceImpl
                 })
                 .map(userMapper::toDto)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User with chatId " + chatId + " not found")
+                        () -> new UserNotFoundException(
+                                "User with chatId " + chatId + " not found"
+                        )
                 );
     }
 
-    @CachePut(value = "UserService::findByChatId", key = "#chatId")
+    @CachePut(
+            value = "UserService::findByChatId",
+            key = "#chatId"
+    )
     @Transactional
     @Override
-    public UserDto changeTimeNotification(long chatId, LocalTime time) {
+    public UserDto changeTimeNotification(
+            long chatId,
+            LocalTime time
+    ) {
 
         return userRepository.findByChatId(chatId)
                 .map(e -> {
@@ -148,36 +197,56 @@ public class UserServiceImpl
                     return userRepository.saveAndFlush(e);
                 }).map(userMapper::toDto)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User not found")
+                        () -> new UserNotFoundException(
+                                "User not found"
+                        )
                 );
     }
 
-    @CachePut(value = "UserService::findByChatId", key = "#chatId")
+    @CachePut(
+            value = "UserService::findByChatId",
+            key = "#chatId"
+    )
     @Transactional
     @Override
-    public UserDto changeCity(long chatId, String city) {
+    public UserDto changeCity(
+            long chatId,
+            String city
+    ) {
         return userRepository.findByChatId(chatId)
                 .map(e -> {
                     e.setCity(city);
                     return userRepository.saveAndFlush(e);
                 }).map(userMapper::toDto)
                 .orElseThrow(
-                        () -> new UserNotFoundException("User not found")
+                        () -> new UserNotFoundException(
+                                "User not found"
+                        )
                 );
     }
 
-    @Cacheable(value = "UserService::getUserLanguage", key = "#chatId")
+    @Cacheable(
+            value = "UserService::getUserLanguage",
+            key = "#chatId"
+    )
     @Override
-    public String getUserLanguage(long chatId) {
+    public String getUserLanguage(
+            long chatId
+    ) {
         return userRepository
                 .findByChatId(chatId)
                 .map(UserEntity::getLanguage)
                 .orElse("uk");
     }
 
-    @Cacheable(value = "UserService::getUserUnits", key = "#chatId")
+    @Cacheable(
+            value = "UserService::getUserUnits",
+            key = "#chatId"
+    )
     @Override
-    public String getUserUnits(long chatId) {
+    public String getUserUnits(
+            long chatId
+    ) {
         return userRepository
                 .findByChatId(chatId)
                 .map(UserEntity::getUnits)
@@ -185,7 +254,9 @@ public class UserServiceImpl
     }
 
     @Override
-    public String getUserUnitsText(long chatId) {
+    public String getUserUnitsText(
+            long chatId
+    ) {
 
         String key = userRepository
                 .findByChatId(chatId)
@@ -200,8 +271,8 @@ public class UserServiceImpl
 
         switch (unit) {
             case "standard" -> unit = "K";
-            case "metric" -> unit = "°C";
             case "imperial" -> unit = "°F";
+            default -> unit = "°C";
         }
 
         return unit;

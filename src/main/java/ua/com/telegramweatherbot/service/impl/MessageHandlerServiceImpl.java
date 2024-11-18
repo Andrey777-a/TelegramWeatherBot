@@ -27,15 +27,19 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
     Button button;
 
     @Override
-    public void handleMessage(Update update) {
+    public void handleMessage(
+            Update update
+    ) {
 
         String receivedMessage = update.getMessage().getText();
 
-        long chatId = update.hasMessage() ?
-                update.getMessage().getChatId() :
-                update.getCallbackQuery().getMessage().getChatId();
+        long chatId = update.hasMessage()
+                ? update.getMessage().getChatId()
+                : update.getCallbackQuery().getMessage().getChatId();
 
-        Map<String, Runnable> commandActions = getStringRunnableMap(chatId, update);
+        Map<String, Runnable> commandActions = getStringRunnableMap(
+                chatId, update
+        );
 
         if (commandActions.containsKey(receivedMessage)) {
             commandActions.get(receivedMessage).run();
@@ -46,14 +50,17 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
     }
 
     @Override
-    public void handleLocation(Update update) {
+    public void handleLocation(
+            Update update
+    ) {
 
         long chatId = update.getMessage().getChatId();
         double latitude = update.getMessage().getLocation().getLatitude();
         double longitude = update.getMessage().getLocation().getLongitude();
 
         WeatherResponse weatherResponse = weatherService
-                .getWeatherByCoordinates(latitude, longitude, chatId).getFirst();
+                .getWeatherByCoordinates(latitude, longitude, chatId)
+                .getFirst();
 
         userManagementService.updateLastWeatherRequest(chatId);
 
@@ -63,7 +70,10 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
 
     }
 
-    private Map<String, Runnable> getStringRunnableMap(long chatId, Update update) {
+    private Map<String, Runnable> getStringRunnableMap(
+            long chatId,
+            Update update
+    ) {
 
         Map<String, Runnable> commandActions = new HashMap<>();
 
@@ -98,24 +108,43 @@ public class MessageHandlerServiceImpl implements MessageHandlerService {
     }
 
 
-    private void sendCityButtons(long chatId, int page, int pageSize, boolean isForNotification) {
+    private void sendCityButtons(
+            long chatId,
+            int page,
+            int pageSize,
+            boolean isForNotification
+    ) {
 
-        messageService.sendMessage(chatId, "show.options.change.city",
-                button.inlineMarkupAllCity(page, pageSize, chatId, isForNotification));
+        messageService.sendMessage(
+                chatId,
+                "show.options.change.city",
+                button.inlineMarkupAllCity(
+                        page, pageSize, chatId, isForNotification
+                )
+        );
 
     }
 
-    private void startBot(Update update) {
+    private void startBot(
+            Update update
+    ) {
 
         long chatId = update.getMessage().getChat().getId();
 
-        boolean present = userManagementService.findByChatId(chatId).isPresent();
+        boolean present = userManagementService
+                .findByChatId(chatId)
+                .isPresent();
 
-        String name = Optional.ofNullable(update.getMessage().getChat().getFirstName())
-                .orElse(update.getMessage().getChat().getUserName());
+        String name = Optional.ofNullable(
+                update.getMessage().getChat().getFirstName()
+                ).orElse(
+                        update.getMessage().getChat().getUserName()
+        );
 
         if (present) {
-            messageService.sendMessage(chatId, "start.already.exists");
+            messageService.sendMessage(
+                    chatId, "start.already.exists"
+            );
             return;
         }
 
